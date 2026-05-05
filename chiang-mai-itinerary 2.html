@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>清邁 6天5夜 · 慢活之旅</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=DM+Serif+Display:ital@0;1&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:      #1E3320;
+  --bg-card: #263D28;
+  --bg-deep: #192A1B;
+  --green:   #6EC97A;
+  --green-dim: rgba(110,201,122,0.18);
+  --green-border: rgba(110,201,122,0.25);
+  --text:    #E8F5E2;
+  --text-dim: rgba(232,245,226,0.45);
+  --text-mid: rgba(232,245,226,0.70);
+  --white:   #ffffff;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans TC', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 80px 24px 60px;
+  position: relative; overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 40%, rgba(110,201,122,0.18) 0%, transparent 100%),
+    radial-gradient(ellipse 50% 50% at 80% 70%, rgba(110,201,122,0.10) 0%, transparent 100%),
+    var(--bg-deep);
+}
+.hero > * { position: relative; z-index: 1; }
+
+.hero-eyebrow {
+  font-size: 0.62rem; letter-spacing: 0.4em; text-transform: uppercase;
+  color: var(--green); margin-bottom: 28px;
+  opacity: 0; animation: up 0.7s 0.1s ease forwards;
+}
+.hero h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: clamp(4rem, 11vw, 8rem);
+  line-height: 0.95; color: var(--white);
+  opacity: 0; animation: up 0.7s 0.2s ease forwards;
+}
+.hero h1 em { color: var(--green); font-style: italic; }
+.hero-sub {
+  font-family: 'Noto Serif TC', serif;
+  font-size: clamp(1rem, 2.5vw, 1.35rem);
+  color: var(--text-mid); margin-top: 18px; letter-spacing: 0.08em;
+  opacity: 0; animation: up 0.7s 0.3s ease forwards;
+}
+.hero-desc {
+  font-size: 0.72rem; letter-spacing: 0.18em;
+  color: var(--text-dim); margin-top: 8px;
+  opacity: 0; animation: up 0.7s 0.38s ease forwards;
+}
+.hero-pills {
+  display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+  margin-top: 36px;
+  opacity: 0; animation: up 0.7s 0.46s ease forwards;
+}
+.hero-pill {
+  font-size: 0.7rem; padding: 7px 18px;
+  border: 1px solid var(--green-border);
+  color: var(--text-mid); letter-spacing: 0.06em;
+  border-radius: 100px;
+}
+.hero-pill a { color: inherit; text-decoration: none; }
+.hero-pill a:hover { color: var(--green); }
+
+/* ── SECTION ── */
+.section { max-width: 820px; margin: 0 auto; padding: 70px 20px; }
+.section-label {
+  text-align: center;
+  font-size: 0.6rem; letter-spacing: 0.45em; text-transform: uppercase;
+  color: var(--green); opacity: 0.7; margin-bottom: 48px;
+}
+.divider { border: none; border-top: 1px solid var(--green-border); margin: 0; }
+
+/* ── DAY CARDS ── */
+.day-block {
+  margin-bottom: 10px;
+  opacity: 0; transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.day-block.visible { opacity:1; transform:translateY(0); }
+
+.day-card {
+  background: var(--bg-card);
+  border: 1px solid var(--green-border);
+  border-radius: 8px; overflow: hidden;
+  cursor: pointer; transition: border-color 0.25s, box-shadow 0.25s;
+}
+.day-card:hover { border-color: rgba(110,201,122,0.5); box-shadow: 0 4px 24px rgba(0,0,0,0.25); }
+.day-card.active { border-color: rgba(110,201,122,0.55); }
+
+.card-header { display: flex; align-items: center; gap: 16px; padding: 18px 20px; }
+.card-num {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem; font-style: italic; color: var(--green);
+  line-height: 1; flex-shrink: 0; width: 36px; text-align: center;
+}
+.card-sep { width: 1px; height: 36px; background: var(--green-border); flex-shrink: 0; }
+.card-meta { flex: 1; min-width: 0; }
+.card-date { font-size: 0.65rem; letter-spacing: 0.12em; color: var(--text-dim); text-transform: uppercase; margin-bottom: 4px; }
+.card-theme { font-family: 'Noto Serif TC', serif; font-size: 0.95rem; font-weight: 700; color: var(--white); }
+.card-pills { display:flex; flex-wrap:wrap; gap:5px; margin-top:7px; }
+.card-pill {
+  font-size: 0.6rem; padding: 2px 9px;
+  border: 1px solid var(--green-border); color: var(--text-dim); border-radius: 100px;
+  cursor: pointer; transition: all 0.2s; text-decoration: none; display: inline-block;
+}
+.card-pill:hover { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+.card-arrow { font-size: 0.75rem; color: var(--green); flex-shrink:0; transition: transform 0.3s; }
+.day-card.active .card-arrow { transform: rotate(45deg); }
+
+/* ── PANEL ── */
+.card-panel {
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1);
+  border-top: 1px solid transparent;
+}
+.day-card.active .card-panel { max-height: 3000px; border-top-color: var(--green-border); }
+.panel-body { padding: 20px; }
+
+.day-note {
+  font-size: 0.72rem; line-height: 1.8; color: var(--text-dim);
+  border-left: 2px solid var(--green);
+  padding-left: 12px; margin-bottom: 18px;
+}
+
+/* FLIGHT BANNER */
+.flight-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 14px; margin-bottom: 16px;
+  background: rgba(110,201,122,0.08);
+  border: 1px solid var(--green-border);
+  border-radius: 6px; font-size: 0.75rem;
+}
+.flight-row.after { margin-top: 16px; margin-bottom: 0; }
+.flight-row strong { color: var(--green); }
+.flight-row .fd { color: var(--text-mid); }
+.flight-row a { color: var(--green); text-decoration: none; font-size: 0.62rem; letter-spacing: 0.1em; margin-left: auto; border: 1px solid var(--green-border); padding: 3px 10px; border-radius: 3px; }
+.flight-row a:hover { background: var(--green-dim); }
+
+/* STOPS */
+.stops-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+
+.stop-card {
+  background: var(--bg-deep);
+  border: 1px solid rgba(110,201,122,0.15);
+  border-radius: 6px; overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  display: flex; flex-direction: column;
+}
+.stop-card.clickable { cursor: pointer; }
+.stop-card.clickable:hover { border-color: rgba(110,201,122,0.45); transform: translateY(-2px); }
+
+.stop-top { display:flex; align-items:flex-start; gap:10px; padding:13px 13px 8px; }
+.stop-emoji { font-size:1.1rem; flex-shrink:0; margin-top:1px; }
+.stop-name {
+  font-size:0.82rem; font-weight:500; color:var(--white); margin-bottom:2px;
+  text-decoration: none; display: block;
+}
+a.stop-name:hover { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+.stop-type { font-size:0.62rem; color:var(--green); letter-spacing:0.06em; }
+.stop-desc { font-size:0.68rem; line-height:1.6; color:var(--text-dim); padding:0 13px 10px; flex: 1; }
+.stop-foot {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 13px;
+  border-top: 1px solid rgba(110,201,122,0.1);
+  background: rgba(0,0,0,0.12);
+  gap: 6px; flex-wrap: wrap;
+}
+.stop-rating { font-size:0.65rem; color:var(--green); }
+.stop-rating span { color:var(--text-dim); margin-left:4px; }
+.stop-links { display: flex; gap: 6px; align-items: center; }
+.link-btn {
+  font-size:0.56rem; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--green); border:1px solid var(--green-border);
+  padding:3px 7px; border-radius:3px; text-decoration: none;
+  transition: background 0.2s; white-space: nowrap;
+}
+.link-btn:hover { background: var(--green-dim); }
+.link-btn.map { color: rgba(232,245,226,0.6); border-color: rgba(232,245,226,0.15); }
+.link-btn.map:hover { background: rgba(232,245,226,0.07); color: var(--text); }
+
+/* ── EXCHANGE ── */
+.exchange-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 10px; }
+.ex-card {
+  background: var(--bg-card); border: 1px solid var(--green-border);
+  border-radius: 6px; overflow:hidden;
+  transition: border-color 0.2s, transform 0.2s;
+  display: flex; flex-direction: column;
+}
+.ex-card.clickable { cursor:pointer; }
+.ex-card.clickable:hover { border-color:rgba(110,201,122,0.5); transform:translateY(-2px); }
+.ex-top { display:flex; align-items:center; gap:12px; padding:14px 14px 10px; }
+.ex-rank {
+  width:26px; height:26px; border-radius:50%; flex-shrink:0;
+  border:1px solid var(--green-border); background:var(--green-dim);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'DM Serif Display',serif; font-size:0.85rem; color:var(--green);
+}
+.ex-name { font-size:0.88rem; font-weight:500; color:var(--white); }
+.ex-badge {
+  font-size:0.59rem; color:var(--green); opacity:0.8;
+  border:1px solid var(--green-border); border-radius:3px;
+  padding:1px 7px; margin-top:3px; display:inline-block;
+}
+.ex-meta { font-size:0.67rem; color:var(--text-dim); line-height:1.9; padding:0 14px 10px; flex:1; }
+.ex-foot {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:7px 14px; border-top:1px solid rgba(110,201,122,0.1);
+  background:rgba(0,0,0,0.1); gap: 6px;
+}
+.ex-rating { font-size:0.65rem; color:var(--green); }
+.ex-rating span { color:var(--text-dim); margin-left:4px; }
+
+/* ── TIPS ── */
+.tips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(185px,1fr)); gap: 10px; }
+.tip-card {
+  padding: 18px; background: var(--bg-card); border: 1px solid var(--green-border); border-radius: 6px;
+}
+.tip-icon { font-size: 1.3rem; margin-bottom: 10px; }
+.tip-title { font-size:0.65rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--green); margin-bottom:6px; }
+.tip-text { font-size:0.7rem; line-height:1.75; color:var(--text-dim); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position:fixed; inset:0; z-index:1000;
+  background:rgba(10,20,11,0.88); backdrop-filter:blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity 0.3s;
+}
+.modal-overlay.open { opacity:1; pointer-events:all; }
+.modal {
+  background:var(--bg-card); border:1px solid rgba(110,201,122,0.35);
+  border-radius:8px; overflow:hidden;
+  width:min(660px, 92vw);
+  transform:scale(0.96) translateY(16px); transition:all 0.3s;
+  max-height:90vh; display:flex; flex-direction:column;
+}
+.modal-overlay.open .modal { transform:scale(1) translateY(0); }
+.modal-head {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  padding:18px 20px; border-bottom:1px solid var(--green-border);
+}
+.modal-title { font-family:'Noto Serif TC',serif; font-size:0.95rem; font-weight:700; color:var(--white); }
+.modal-addr { font-size:0.65rem; color:var(--text-dim); margin-top:3px; }
+.modal-close {
+  width:30px; height:30px; border-radius:50%;
+  border:1px solid var(--green-border); background:none;
+  cursor:pointer; color:var(--green); font-size:1rem;
+  display:flex; align-items:center; justify-content:center;
+  transition:background 0.2s; flex-shrink:0;
+}
+.modal-close:hover { background:var(--green-dim); }
+.modal-map iframe { width:100%; height:360px; border:none; display:block; }
+.modal-foot {
+  padding:14px 20px; border-top:1px solid var(--green-border);
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;
+}
+.modal-rating { font-size:0.7rem; color:var(--green); }
+.modal-rating span { color:var(--text-dim); margin-left:4px; }
+.modal-link {
+  font-size:0.62rem; letter-spacing:0.15em; text-transform:uppercase;
+  color:var(--green); border:1px solid var(--green-border);
+  padding:7px 14px; border-radius:3px; text-decoration:none;
+  transition:background 0.2s;
+}
+.modal-link:hover { background:var(--green-dim); }
+
+/* ── FULL MAP ── */
+.map-section { max-width: 820px; margin: 0 auto; padding: 70px 20px; }
+.map-wrap {
+  border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--green-border);
+  position: relative;
+}
+#fullMap { width: 100%; height: 520px; background: var(--bg-deep); }
+.map-legend {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-top: 14px;
+}
+.legend-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.65rem; color: var(--text-mid);
+  padding: 5px 10px; border-radius: 100px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: var(--bg-card);
+}
+.legend-dot {
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+}
+
+/* ── SHOPPING ── */
+.shop-categories { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: 14px; }
+.shop-cat {
+  background: var(--bg-card); border: 1px solid var(--green-border);
+  border-radius: 6px; overflow: hidden;
+}
+.shop-cat-head {
+  padding: 14px 16px 10px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid rgba(110,201,122,0.12);
+}
+.shop-cat-icon { font-size: 1.2rem; }
+.shop-cat-title { font-family:'Noto Serif TC',serif; font-size:0.85rem; font-weight:700; color:var(--white); }
+.shop-items { padding: 12px 16px 14px; display: flex; flex-direction: column; gap: 8px; }
+.shop-item { display: flex; align-items: baseline; gap: 8px; }
+.shop-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--green); flex-shrink: 0; margin-top: 6px; }
+.shop-item-text { font-size: 0.7rem; line-height: 1.6; color: var(--text-dim); }
+.shop-item-text strong { color: var(--text-mid); font-weight: 500; }
+.shop-where {
+  margin-top: 20px; padding: 16px;
+  background: rgba(110,201,122,0.06);
+  border: 1px solid var(--green-border);
+  border-radius: 6px;
+}
+.shop-where-title { font-size: 0.62rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+.shop-where-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.shop-tag {
+  font-size: 0.67rem; padding: 5px 12px;
+  border: 1px solid var(--green-border); border-radius: 100px;
+  color: var(--text-mid);
+}
+
+/* ── FOOTER ── */
+footer {
+  text-align:center; padding:36px 20px;
+  border-top:1px solid var(--green-border);
+  font-size:0.6rem; letter-spacing:0.25em; text-transform:uppercase;
+  color:var(--text-dim);
+}
+
+@keyframes up {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <p class="hero-eyebrow">放鬆 · 美食 · 輕旅行</p>
+  <h1>清邁<br><em>Chiang Mai</em></h1>
+  <p class="hero-sub">6天5夜 · 五大一小的慢活之旅</p>
+  <p class="hero-desc">放慢腳步 · 感受文化 · 品味美食 · 享受快樂時光</p>
+  <div class="hero-pills">
+    <span class="hero-pill">🛫 去程 星宇航空 JX751｜5/7 13:20 → 16:20</span>
+    <span class="hero-pill"><a href="https://villaalanna.com/chiangmai/" target="_blank">🏨 住宿 Villa Alanna · Nimman</a></span>
+    <span class="hero-pill">🛬 回程 星宇航空 JX752｜5/12 17:20 → 22:10</span>
+  </div>
+</section>
+
+<hr class="divider">
+
+<div class="section">
+  <p class="section-label">— 完整行程 · 點擊展開 —</p>
+  <div id="timeline"></div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <p class="section-label">— 換匯攻略 · 機場不划算，市區更推薦 —</p>
+  <div class="exchange-grid" id="exchangeGrid"></div>
+</div>
+
+<hr class="divider">
+
+<div class="map-section">
+  <p class="section-label">— 六天行程全覽地圖 · 點擊圖釘查看景點 —</p>
+  <div class="map-wrap">
+    <div id="fullMap"></div>
+  </div>
+  <div class="map-legend" id="mapLegend"></div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <p class="section-label">— 旅行亮點提示 —</p>
+  <div class="tips-grid">
+    <div class="tip-card"><div class="tip-icon">🚕</div><div class="tip-title">叫車</div><div class="tip-text">推薦使用 <a href="https://www.grab.com" target="_blank" style="color:var(--green)">Grab</a> 或 <a href="https://bolt.eu" target="_blank" style="color:var(--green)">Bolt</a> 叫車，兩款都方便安全。Bolt 有時更便宜，可以比較再選！</div></div>
+    <div class="tip-card"><div class="tip-icon">☀️</div><div class="tip-title">防曬</div><div class="tip-text">清邁天氣熱，防曬乳必備，建議選 SPF 50+ 防水款。</div></div>
+    <div class="tip-card"><div class="tip-icon">👖</div><div class="tip-title">穿著</div><div class="tip-text">進寺廟需著長褲或長裙，室內冷氣強，薄外套別忘。</div></div>
+    <div class="tip-card"><div class="tip-icon">💱</div><div class="tip-title">換錢</div><div class="tip-text">機場匯率差，建議到達後去市區換匯所換。VK、G Exchange、Nakhonping 都是高評價選擇。</div></div>
+    <div class="tip-card"><div class="tip-icon">🐘</div><div class="tip-title">大象保育</div><div class="tip-text">選擇非騎乘、尊重動物的保育觀察體驗，保護動物也讓孩子深刻體驗。</div></div>
+    <div class="tip-card"><div class="tip-icon">😺</div><div class="tip-title">貓咪咖啡</div><div class="tip-text">Mali Cat Cafe 小孩最愛，記得事先查詢座位是否需要預約。</div></div>
+    <div class="tip-card"><div class="tip-icon">🛍️</div><div class="tip-title">逛市集</div><div class="tip-text">Jing Jai 週末人潮最旺，建議早點去！Baan Kang Wat 週一休館，注意避開。</div></div>
+    <div class="tip-card"><div class="tip-icon">🙏</div><div class="tip-title">寺廟禮儀</div><div class="tip-text">入廟前需脫鞋，保持安靜肅穆。Wat Umong 地下隧道光線昏暗，建議開手機燈。</div></div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<div class="section">
+  <p class="section-label">— 清邁好買攻略 · 行李一定要多留空間 —</p>
+  <div class="shop-categories">
+
+    <div class="shop-cat">
+      <div class="shop-cat-head"><span class="shop-cat-icon">👜</span><span class="shop-cat-title">包包 & 編織</span></div>
+      <div class="shop-items">
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>NaRaYa 曼谷包</strong> — 蝴蝶結設計，輕巧耐用，送禮自用兩相宜</div></div>
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>草編包 / 藤編包</strong> — 手工編織，時髦百搭，瑪雅百貨 3F 或 JJ 市集都有</div></div>
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>藍染布包</strong> — 泰北傳統藍染工藝，Jing Jai 市集獨家手工款</div></div>
+      </div>
+    </div>
+
+    <div class="shop-cat">
+      <div class="shop-cat-head"><span class="shop-cat-icon">🌿</span><span class="shop-cat-title">香氛 & 保養</span></div>
+      <div class="shop-items">
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>Herb Basics 草本香皂</strong> — 古城區人氣伴手禮名店，天然草本系列超值</div></div>
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>Lanna 香氛蠟燭 / 擴香</strong> — Baan Kang Wat 藝術村或 Kalm Village 都有質感選品</div></div>
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>蜈蚣藥膏 / 草本通鼻棒</strong> — 藥妝店 Boots 或 Big C 掃貨，便宜大碗</div></div>
+      </div>
+    </div>
+
+    <div class="shop-cat">
+      <div class="shop-cat-head"><span class="shop-cat-icon">🍜</span><span class="shop-cat-title">食品 & 零食</span></div>
+      <div class="shop-items">
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>手標泰奶茶包</strong> — 泰式奶茶的靈魂，金色最濃郁，Big C 有售</div></div>
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>泰國限定 Pocky</strong> — 芒果 & 香蕉口味台灣買不到，一盒只要 20 泰銖</div></div>
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>泰北咖哩調理包</strong> — 綠咖哩、打拋豬帶回家重現清邁滋味</div></div>
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>塔佩門阿嬤 Roti 餅</strong> — 香脆微甜，飛機上吃最幸福，記得多買幾盒</div></div>
+      </div>
+    </div>
+
+    <div class="shop-cat">
+      <div class="shop-cat-head"><span class="shop-cat-icon">🪨</span><span class="shop-cat-title">工藝 & 紀念品</span></div>
+      <div class="shop-items">
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>清邁銀器</strong> — 925 純銀，蘭納傳統花紋，瓦洛洛市場尋寶</div></div>
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>木雕 & 皮雕飾品</strong> — 週日夜市、Jing Jai 市集都有手工獨立設計師攤</div></div>
+        <div class="shop-item"><div class="shop-dot"></div><div class="shop-item-text"><strong>星巴克城市杯</strong> — 來都來了，帶一個清邁限定杯回家 (約 600 泰銖)</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="shop-where">
+    <div class="shop-where-title">哪裡買最划算？</div>
+    <div class="shop-where-grid">
+      <span class="shop-tag">🛒 Jing Jai 市集 — 文創手作首選</span>
+      <span class="shop-tag">🌙 週日夜市 — 伴手禮、紀念品掃貨</span>
+      <span class="shop-tag">🏬 MAYA 百貨 — 品牌、藥妝一站購足</span>
+      <span class="shop-tag">🏮 One Nimman — 設計選品、文創品牌</span>
+      <span class="shop-tag">🎨 Baan Kang Wat — 手工藝、獨立設計師</span>
+      <span class="shop-tag">🏪 Big C / 7-11 — 零食、藥品最便宜</span>
+      <span class="shop-tag">💊 Boots 藥妝 — 保養品、藥膏掃貨</span>
+      <span class="shop-tag">🏛️ 瓦洛洛市場 — 百年傳統市場，銀器必逛</span>
+    </div>
+  </div>
+</div>
+
+<footer>清邁 6天5夜慢活之旅 · 2026.05.07 — 05.12</footer>
+
+<div class="modal-overlay" id="mapModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div><div class="modal-title" id="modalTitle"></div><div class="modal-addr" id="modalSubtitle"></div></div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-map"><iframe id="modalIframe" src="" allowfullscreen loading="lazy"></iframe></div>
+    <div class="modal-foot">
+      <div class="modal-rating" id="modalInfo"></div>
+      <a class="modal-link" id="modalGoogleLink" href="#" target="_blank">在 Google Maps 開啟 →</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const DAYS = [
+  { day:1, date:'5/7 (Thu)', emoji:'🛫', theme:'落地清邁，夜遊尼曼區',
+    note:'搭乘星宇航空 JX751｜13:20 → 16:20 直飛清邁。抵達後先搭計程車前往 Villa Alanna Check-in 休息，傍晚前往 Little Pasta Box 吃晚餐，餐後逛尼曼一號 One Nimman，最後到 MAYA 超市補貨！',
+    flight:{ label:'星宇航空 JX751', detail:'13:20 → 16:20 直飛清邁', icon:'🛫', link:'https://www.starlux-airlines.com' },
+    stops:[
+      { name:'Villa Alanna · Check-in', type:'住宿 · 古城區旁', icon:'🏨',
+        desc:'抵達清邁後先回飯店放行李、稍作休息，恢復體力後再出發探索尼曼區。',
+        rating:4.8, ratingCount:279,
+        webLink:'https://villaalanna.com/chiangmai/',
+        lat:18.7939209, lng:98.97791559999999, placeId:'ChIJb7Ia4gU72jARTomXKksnfWY', address:'12/3 Thanon Bunrueang Rit, Chiang Mai' },
+      { name:'Little Pasta Box', type:'晚餐 · 義式手工麵館', icon:'🍝',
+        desc:'Google 評分 5.0 滿分！現做手工義大利麵，醬汁獨特迷人，在清邁尼曼區超隱藏版美食。週四有開，千萬別錯過！',
+        rating:5.0, ratingCount:57,
+        webLink:'https://www.facebook.com/people/Little-Pasta-Box/61558123218085/',
+        lat:18.7965694, lng:98.9667193, placeId:'ChIJk3qjXPw72jARASpjU_VAv9Y', address:'2 Nimmana Haeminda Rd Lane 13, Chiang Mai' },
+      { name:'One Nimman 尼曼一號', type:'文創商場 · 夜間散步', icon:'🏮',
+        desc:'充滿復古磚工業風的露天文創商場，夜晚有現場音樂演出，聚集設計小店、餐廳與咖啡廳，是清邁最迷人的夜晚去處。',
+        rating:4.5, ratingCount:12698,
+        webLink:'https://www.onenimman.com/',
+        lat:18.799913, lng:98.96770529999999, placeId:'ChIJ8QdNKPU72jARtz_iHmA6_zk', address:'1 Nimmanahaeminda Road, Chiang Mai' },
+      { name:'MAYA 瑪雅百貨 · 超市', type:'購物中心 · 補貨', icon:'🏬',
+        desc:'尼曼區現代化購物中心，頂樓超市補零食、飲料、盥洗用品超方便，旅途必備！',
+        rating:4.4, ratingCount:17375,
+        lat:18.8018681, lng:98.9676745, placeId:'ChIJC1o2yWE62jARfjKPh-dUjiQ', address:'55/5 Huay Kaew Rd, Chiang Mai' }
+    ]
+  },
+  { day:2, date:'5/8 (Fri)', emoji:'🐘', theme:'與大象相遇，自然保護區散步',
+    note:'全天沉浸在倫理象群保育體驗中。近距離觀察了解大象習性，餵食、互動、沐浴體驗。晚餐可選古城餐廳或外送放鬆休息。',
+    stops:[
+      { name:'Elephant Nature Park', type:'大象保育中心', icon:'🐘',
+        desc:'清邁最知名的倫理象群保育公園。非騎乘體驗，尊重動物，近距離了解大象生態，適合全家大小。距市區約 60 公里，建議搭官方接駁車。',
+        rating:4.5, ratingCount:599,
+        webLink:'https://www.elephantnaturepark.org/',
+        lat:19.2141, lng:98.8584, placeId:'ChIJc8S16aE62jARUXKBvK2Xu8I', address:'289 Kuet Chang, Mae Taeng District, Chiang Mai 50150, Thailand' }
+    ]
+  },
+  { day:3, date:'5/9 (Sat)', emoji:'📷', theme:'藝術、禪意、一頓值得的晚餐',
+    note:'上午前往文青藝術村逛手作小店，下午造訪神秘靜謐的森林寺廟，晚上享用 Michelin 推薦餐廳。',
+    stops:[
+      { name:'Baan Kang Wat 藝術村', type:'文青市集', icon:'🎨',
+        desc:'隱藏在清邁南部的迷人藝術聚落，古木老屋改建成手工藝品店與咖啡廳，超多拍照好角落！',
+        rating:4.5, ratingCount:6090,
+        webLink:'https://www.facebook.com/baankangwat/',
+        lat:18.7763256, lng:98.9487285, placeId:'ChIJdxPPqzUx2jARn86GcuRsD1s', address:'191-197 Soi Wat Umong, Chiang Mai' },
+      { name:'Wat Umong 悟孟寺', type:'佛教寺廟', icon:'🏯',
+        desc:'清邁最古老神秘的隧道式寺廟之一，14世紀建造。森林靜謐中漫步地下隧道，感受百年禪意。',
+        rating:4.6, ratingCount:11031,
+        webLink:'https://www.tourismthailand.org/Attraction/wat-umong',
+        lat:18.7827263, lng:98.9521099, placeId:'ChIJnWhAb3A62jARWVBZnaOa7-0', address:'135 Tambon Su Thep, Chiang Mai' },
+      { name:'Baan Landai · 高評泰料', type:'Michelin 推薦餐廳', icon:'🍽️',
+        desc:'米其林必比登推薦！精緻北泰料理，招牌紅酒燉豬肋排超絕，用餐環境典雅，藍染蘭納風格。',
+        rating:4.5, ratingCount:1363,
+        webLink:'https://www.facebook.com/baanlandai/',
+        lat:18.7940281, lng:98.9874588, placeId:'ChIJn9ce4sk72jARiF6Gtvq0DV4', address:'252 Prapokklao Road, Chiang Mai' }
+    ]
+  },
+  { day:4, date:'5/10 (Sun)', emoji:'🥤', theme:'真心市集 & 週日夜市',
+    note:'週日是 Jing Jai 市集最熱鬧的時刻，早上逛市集吃小吃買伴手禮，傍晚去 Hummus Garden 吃晚餐，餐後前往古城內超人氣週日夜市，感受清邁最熱鬧的夜晚！',
+    stops:[
+      { name:'Jing Jai 真心市集', type:'週末文創市集', icon:'🛒',
+        desc:'清邁最大的在地創意市集！手工皮件、藍染、文創雜貨、有機農產，每週六日有大量擺攤，氣氛超棒。',
+        rating:4.5, ratingCount:11530,
+        webLink:'https://www.jingjaicentralchiangmai.com/',
+        lat:18.8059844, lng:98.99565469999999, placeId:'ChIJzfxey8A62jARBouRzNKxv58', address:'46 Thanon Atsadathon, Chiang Mai' },
+      { name:'Hummus Garden', type:'晚餐 · 中東素食餐廳', icon:'🥙',
+        desc:'藏在小巷裡的神秘中東餐廳，Google 評分高達 4.8！現做鷹嘴豆泥、法拉費塔，完全不同的清邁口味體驗。',
+        rating:4.8, ratingCount:4398,
+        webLink:'https://www.facebook.com/HummusGardenChiangMai/',
+        lat:18.7749381, lng:98.9994335, placeId:'ChIJaRjpEbs72jARUhw5hedocOI', address:'11/1 Charoen Prathet Lane 12, Chiang Mai' },
+      { name:'週日夜市 Sunday Night Market', type:'夜間市集 · 週日 17:00–22:00', icon:'🌙',
+        desc:'清邁古城內最熱鬧的週日夜市！Rachadamnoen Rd 整條街封閉，攤販、手工藝、小吃、表演一應俱全，傍晚 6 點會播泰國國歌，全街靜默，超難忘體驗！',
+        rating:4.5, ratingCount:2498,
+        webLink:'https://www.tourismthailand.org/Attraction/sunday-walking-street',
+        lat:18.78818, lng:98.98810019999999, placeId:'ChIJ_RgETBE72jARDqkA1awFQdI', address:'Rachadamnoen Rd, Si Phum, Chiang Mai' }
+    ]
+  },
+  { day:5, date:'5/11 (Mon)', emoji:'☕', theme:'古城漫步、抹茶、按摩放鬆',
+    note:'上午到 Zohng Coffee 早午餐，接著步行前往古城探索柴迪隆寺和 Kalm Village 藝術村，下午前往 Magokoro 真心茶屋享用日式抹茶，最後以泰式按摩收尾放鬆。',
+    stops:[
+      { name:'Zohng Coffee', type:'早午餐 · 網美咖啡廳', icon:'☕',
+        desc:'古城區熱門咖啡廳，工業風設計超適合拍照，提供精緻早午餐與手沖咖啡，口碑極佳。',
+        rating:4.6, ratingCount:1399,
+        webLink:'https://www.facebook.com/ZohngCoffee/',
+        lat:18.789567599999998, lng:98.9828084, placeId:'ChIJXZRWons72jAR26Ig85Kbg44', address:'58 Intrawarorot Road Soi 2, Chiang Mai' },
+      { name:'Wat Chedi Luang 柴迪隆寺', type:'歷史景點 · 古城必訪', icon:'🛕',
+        desc:'清邁古城最壯觀的寺廟之一！14 世紀蘭納王朝建造，巨大的磚石佛塔氣勢磅礴，晚上有光雕秀。入場費 50 泰銖，需著長褲長裙。',
+        rating:4.7, ratingCount:17986,
+        webLink:'https://www.tourismthailand.org/Attraction/wat-chedi-luang',
+        lat:18.7869693, lng:98.9865804, placeId:'ChIJFRQRM5k62jARuqhLBJpw91w', address:'103 Prapokklao Road, Si Phum, Chiang Mai' },
+      { name:'Kalm Village', type:'藝術村 · 文創空間', icon:'🎨',
+        desc:'評分 4.8 的隱世藝術村！蘭納風格建築圍繞中庭，有藝廊、咖啡廳、選物店和圖書館，屋頂可眺望古城寺廟景色。週一有開。',
+        rating:4.8, ratingCount:2640,
+        webLink:'https://www.instagram.com/kalmvillage/',
+        lat:18.783362699999998, lng:98.9864667, placeId:'ChIJLbX7JJI72jARhFaSmKv7fS0', address:'14 Phra Pok Klao Rd Soi 4, Phra Sing, Chiang Mai' },
+      { name:'Magokoro 真心茶屋', type:'下午 · 日式抹茶專門店', icon:'🍵',
+        desc:'清邁最夯的日式抹茶專門店！傳統榻榻米空間搭配精緻日式庭園，抹茶、焙茶、和菓子選擇豐富，評分 4.6，週一有開。',
+        rating:4.6, ratingCount:1720,
+        webLink:'https://www.magokoro-tea.com/ourteahouse',
+        lat:18.7811873, lng:99.0012149, placeId:'ChIJT5SzH7g72jARUEOohp43l7E', address:'191/1 Sridonchai Rd, Chang Khlan, Chiang Mai' }
+    ]
+  },
+  { day:6, date:'5/12 (Tue)', emoji:'😸', theme:'睡到自然醒，帶著回憶飛回家',
+    note:'悠閒吃早餐後整理行李退房，下午前往貓咪咖啡廳與毛孩話別，最後前往機場搭乘星宇航空 JX752 回台灣，滿滿回憶，期待下次再來！',
+    flightAfter:{ label:'星宇航空 JX752', detail:'17:20 → 22:10 當天抵達台灣', icon:'🛬', link:'https://www.starlux-airlines.com' },
+    stops:[
+      { name:'Mali Cat Cafe', type:'貓咪咖啡廳', icon:'🐱',
+        desc:'尼曼區最夯的貓咪咖啡！環境整潔寬敞，貓咪健康可愛，250 泰銖含一杯飲品，小孩最愛的清邁收尾！',
+        rating:4.7, ratingCount:1488,
+        webLink:'https://www.instagram.com/mali.catcafe.nimman/',
+        lat:18.800660999999998, lng:98.96781849999999, placeId:'ChIJEab8f1M72jARS90pzESN7P0', address:'Nimman Road, Chiang Mai' }
+    ]
+  }
+];
+
+const EXCHANGES = [
+  { rank:1, name:'VK Money Exchange', hours:'09:00–18:00', location:'古城區 Ratvithi Rd', badge:'匯率不錯 · 位置便利', rating:4.7, ratingCount:186, lat:18.7903554, lng:98.9930461, placeId:'ChIJtcTn5KI62jARCW07OQXL_U8', address:'1/3 Ratvithi Rd, Chiang Mai' },
+  { rank:2, name:'SK Exchange', hours:'09:00–17:00（週日休息）', location:'夜市附近', badge:'在地人常用 · 匯率穩定', rating:null, ratingCount:null, placeId:null },
+  { rank:3, name:'G Exchange', hours:'09:00–22:00', location:'Loi Kroh Rd', badge:'營業時間長 · 晚上也能換匯', rating:4.8, ratingCount:112, lat:18.7849468, lng:98.9936872, placeId:'ChIJy1QnFzc72jARBOzC59qmuLE', address:'10/1 Loi Kroh Rd, Chiang Mai' },
+  { rank:4, name:'Siri Money Exchange', hours:'09:00–22:00', location:'古城區附近', badge:'營業時間長 · 晚上也能換匯', rating:null, ratingCount:null, placeId:null },
+  { rank:5, name:'Nakhonping Exchange', hours:'09:00–22:00', location:'夜市附近 Loi Kroh Rd', badge:'匯率高 · 零手續費', rating:4.7, ratingCount:174, lat:18.784231, lng:98.9980535, placeId:'ChIJg0biMaE62jARepIN9ujHUJY', address:'44/6 Loi Kroh Rd, Chiang Mai' },
+  { rank:6, name:'Mr. Pierre Exchange', hours:'09:00–18:00（週日休息）', location:'古城區', badge:'可先用 LINE 詢問匯率', rating:null, ratingCount:null, placeId:null },
+  { rank:7, name:'Super Money', hours:'08:30–17:30', location:'Loi Kroh Rd', badge:'可先用 LINE 詢問匯率', rating:4.1, ratingCount:257, lat:18.7845427, lng:98.99523020000001, placeId:'ChIJ21K8MKY62jARBJ0aMtAUo4E', address:'34/4 Loi Kroh Rd, Chiang Mai' }
+];
+
+function buildTimeline() {
+  const container = document.getElementById('timeline');
+  DAYS.forEach((day, i) => {
+    const block = document.createElement('div');
+    block.className = 'day-block';
+    block.style.transitionDelay = `${i * 0.07}s`;
+
+    // Pills link to the first stop's web page if available
+    const pills = day.stops.map(s =>
+      s.webLink
+        ? `<a class="card-pill" href="${s.webLink}" target="_blank" onclick="event.stopPropagation()">${s.name.split('·')[0].trim()}</a>`
+        : `<span class="card-pill">${s.name.split('·')[0].trim()}</span>`
+    ).join('');
+
+    const flightLink = f => f.link
+      ? `<a href="${f.link}" target="_blank" onclick="event.stopPropagation()">官網 →</a>`
+      : '';
+
+    const flightHtml = day.flight ? `
+      <div class="flight-row">
+        <span>${day.flight.icon}</span>
+        <span class="fd"><strong>${day.flight.label}</strong> &nbsp;${day.flight.detail}</span>
+        ${flightLink(day.flight)}
+      </div>` : '';
+
+    const flightAfterHtml = day.flightAfter ? `
+      <div class="flight-row after">
+        <span>${day.flightAfter.icon}</span>
+        <span class="fd"><strong>${day.flightAfter.label}</strong> &nbsp;${day.flightAfter.detail}</span>
+        ${flightLink(day.flightAfter)}
+      </div>` : '';
+
+    const stopsHtml = day.stops.map(s => {
+      const mapClick = s.placeId
+        ? `onclick="openModal('${s.name}','${s.address}',${s.lat},${s.lng},${s.rating},${s.ratingCount},'${s.placeId}',event)"`
+        : '';
+      const nameEl = s.webLink
+        ? `<a class="stop-name" href="${s.webLink}" target="_blank" onclick="event.stopPropagation()">${s.name}</a>`
+        : `<span class="stop-name">${s.name}</span>`;
+      const webBtn = s.webLink
+        ? `<a class="link-btn" href="${s.webLink}" target="_blank" onclick="event.stopPropagation()">🌐 官網</a>`
+        : '';
+      const mapBtn = s.placeId
+        ? `<span class="link-btn map" ${mapClick} style="cursor:pointer">📍 地圖</span>`
+        : '';
+      return `
+        <div class="stop-card${s.placeId || s.webLink ? ' clickable' : ''}" ${mapClick}>
+          <div class="stop-top">
+            <span class="stop-emoji">${s.icon}</span>
+            <div>${nameEl}<div class="stop-type">${s.type}</div></div>
+          </div>
+          <div class="stop-desc">${s.desc}</div>
+          <div class="stop-foot">
+            <div class="stop-rating">${s.rating ? `★ ${s.rating}<span>(${s.ratingCount.toLocaleString()}則)</span>` : ''}</div>
+            <div class="stop-links">${webBtn}${mapBtn}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    block.innerHTML = `
+      <div class="day-card" id="dc-${i}" onclick="toggle(${i})">
+        <div class="card-header">
+          <div class="card-num">${day.day}</div>
+          <div class="card-sep"></div>
+          <div class="card-meta">
+            <div class="card-date">Day ${day.day} · ${day.date}</div>
+            <div class="card-theme">${day.emoji} ${day.theme}</div>
+            <div class="card-pills">${pills}</div>
+          </div>
+          <div class="card-arrow">＋</div>
+        </div>
+        <div class="card-panel">
+          <div class="panel-body">
+            ${flightHtml}
+            <p class="day-note">${day.note}</p>
+            <div class="stops-grid">${stopsHtml}</div>
+            ${flightAfterHtml}
+          </div>
+        </div>
+      </div>`;
+    container.appendChild(block);
+  });
+
+  const obs = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible');
+  }), { threshold: 0.08 });
+  document.querySelectorAll('.day-block').forEach(el => obs.observe(el));
+}
+
+function toggle(i) {
+  const card = document.getElementById(`dc-${i}`);
+  const was = card.classList.contains('active');
+  document.querySelectorAll('.day-card').forEach(c => c.classList.remove('active'));
+  if (!was) card.classList.add('active');
+}
+
+function buildExchange() {
+  const grid = document.getElementById('exchangeGrid');
+  EXCHANGES.forEach(ex => {
+    const card = document.createElement('div');
+    card.className = `ex-card${ex.placeId ? ' clickable' : ''}`;
+    if (ex.placeId) card.onclick = () => openModal(ex.name, ex.address, ex.lat, ex.lng, ex.rating, ex.ratingCount, ex.placeId, null);
+    const mapBtn = ex.placeId
+      ? `<span class="link-btn map" style="cursor:pointer">📍 地圖</span>`
+      : '';
+    card.innerHTML = `
+      <div class="ex-top">
+        <div class="ex-rank">${ex.rank}</div>
+        <div><div class="ex-name">${ex.name}</div><div class="ex-badge">${ex.badge}</div></div>
+      </div>
+      <div class="ex-meta">
+        <div>🕐 ${ex.hours}</div>
+        ${ex.location ? `<div>📍 ${ex.location}</div>` : ''}
+      </div>
+      <div class="ex-foot">
+        <div class="ex-rating">${ex.rating ? `★ ${ex.rating}<span>(${ex.ratingCount}則)</span>` : '<span style="opacity:.4">尚無評分</span>'}</div>
+        ${mapBtn}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function openModal(name, address, lat, lng, rating, count, placeId, e) {
+  if (e) e.stopPropagation();
+  document.getElementById('modalTitle').textContent = name;
+  document.getElementById('modalSubtitle').textContent = address;
+  document.getElementById('modalInfo').innerHTML = rating ? `★ ${rating} <span>(${parseInt(count).toLocaleString()} 則評論)</span>` : '';
+  document.getElementById('modalGoogleLink').href = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${placeId}`;
+  document.getElementById('modalIframe').src = `https://www.google.com/maps/embed/v1/place?key=AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY&q=place_id:${placeId}&zoom=16`;
+  document.getElementById('mapModal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('mapModal').classList.remove('open');
+  setTimeout(() => { document.getElementById('modalIframe').src = ''; }, 300);
+}
+
+document.getElementById('mapModal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+buildTimeline();
+// ── FULL MAP ──
+const DAY_COLORS = [
+  { hex:'#7EC8E3', label:'Day 1 · 落地清邁，夜遊尼曼區' },
+  { hex:'#F4A261', label:'Day 2 · 與大象相遇，自然保護區散步' },
+  { hex:'#A8D5A2', label:'Day 3 · 藝術、禪意、一頓值得的晚餐' },
+  { hex:'#FFD166', label:'Day 4 · 真心市集 & 週日夜市' },
+  { hex:'#C77DFF', label:'Day 5 · 古城漫步、抹茶、按摩放鬆' },
+  { hex:'#FF6B9D', label:'Day 6 · 睡到自然醒，帶著回憶飛回家' },
+];
+
+function buildFullMap() {
+  // Build legend
+  const legend = document.getElementById('mapLegend');
+  DAY_COLORS.forEach((d, i) => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<div class="legend-dot" style="background:${d.hex}"></div><span>${d.label}</span>`;
+    legend.appendChild(item);
+  });
+
+  // Collect all stops
+  const allStops = [];
+  DAYS.forEach((day, di) => {
+    day.stops.forEach(s => {
+      if (s.lat && s.lng) allStops.push({ ...s, dayIndex: di });
+    });
+  });
+
+  // Build iframe with Google Maps embed using multiple markers via custom HTML map
+  // We use Leaflet (free, no API key) via CDN
+  const mapDiv = document.getElementById('fullMap');
+  mapDiv.innerHTML = `<div id="leafletMap" style="width:100%;height:520px;"></div>`;
+
+  const leafletCSS = document.createElement('link');
+  leafletCSS.rel = 'stylesheet';
+  leafletCSS.href = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css';
+  document.head.appendChild(leafletCSS);
+
+  const leafletJS = document.createElement('script');
+  leafletJS.src = 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js';
+  leafletJS.onload = () => {
+    const map = L.map('leafletMap', { zoomControl: true }).setView([18.792, 98.985], 13);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '© OpenStreetMap © CARTO',
+      maxZoom: 19
+    }).addTo(map);
+
+    allStops.forEach(s => {
+      const color = DAY_COLORS[s.dayIndex].hex;
+      const dayNum = s.dayIndex + 1;
+
+      // Custom circle marker with day number
+      const svgIcon = L.divIcon({
+        html: `<div style="
+          width:32px;height:32px;border-radius:50%;
+          background:${color};
+          border:2px solid rgba(255,255,255,0.9);
+          display:flex;align-items:center;justify-content:center;
+          font-family:'DM Serif Display',serif;font-size:13px;font-weight:bold;
+          color:#111;box-shadow:0 2px 8px rgba(0,0,0,0.5);
+          cursor:pointer;
+        ">${dayNum}</div>`,
+        className: '',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
+        popupAnchor: [0, -18]
+      });
+
+      const gmLink = s.placeId
+        ? `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}&query_place_id=${s.placeId}`
+        : `https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}`;
+      const webBtn = s.webLink
+        ? `<a href="${s.webLink}" target="_blank" style="color:${color};font-size:11px;">🌐 官網</a> &nbsp;`
+        : '';
+
+      const popup = `
+        <div style="min-width:180px;font-family:'Noto Sans TC',sans-serif;">
+          <div style="font-size:11px;color:${color};font-weight:600;letter-spacing:0.05em;margin-bottom:4px;">Day ${dayNum} · ${s.type}</div>
+          <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:6px;">${s.icon} ${s.name}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.6);line-height:1.5;margin-bottom:8px;">${s.desc}</div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            ${webBtn}
+            <a href="${gmLink}" target="_blank" style="color:rgba(255,255,255,0.5);font-size:11px;">📍 Google Maps</a>
+          </div>
+        </div>`;
+
+      L.marker([s.lat, s.lng], { icon: svgIcon })
+        .addTo(map)
+        .bindPopup(popup, {
+          maxWidth: 240,
+          className: 'dark-popup'
+        });
+    });
+
+    // Add dark popup style
+    const style = document.createElement('style');
+    style.textContent = `
+      .dark-popup .leaflet-popup-content-wrapper {
+        background: #1E3320; border: 1px solid rgba(110,201,122,0.35);
+        border-radius: 8px; color: #E8F5E2; box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+      }
+      .dark-popup .leaflet-popup-tip { background: #1E3320; }
+      .dark-popup .leaflet-popup-close-button { color: rgba(110,201,122,0.7) !important; }
+    `;
+    document.head.appendChild(style);
+
+    // Fit map to all markers
+    const bounds = allStops.map(s => [s.lat, s.lng]);
+    if (bounds.length) map.fitBounds(bounds, { padding: [40, 40] });
+  };
+  document.head.appendChild(leafletJS);
+}
+
+buildExchange();
+buildFullMap();
+</script>
+</body>
+</html>
