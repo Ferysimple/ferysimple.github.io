@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>談心 · Hearts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;1,300;1,400&family=Noto+Serif+TC:wght@300;400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+:root {
+  --bg:     #0c0a08;
+  --gold:   #b49058;
+  --gold2:  #ccaa72;
+  --gold3:  #e0c990;
+  --mist:   #38332e;
+  --dust:   #68605a;
+  --cream:  #dcd4c7;
+  --cream2: #aca49c;
+  --card:   #f5f0e8;
+  --ink:    #1e1a16;
+  --ink2:   #38322c;
+  --radius: 16px;
+}
+
+html, body { height:100%; }
+
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+#cur  { position:fixed; width:5px; height:5px; background:var(--gold); border-radius:50%; pointer-events:none; z-index:9999; transform:translate(-50%,-50%); transition:opacity .2s; }
+#curR { position:fixed; width:26px; height:26px; border:1px solid rgba(180,144,88,.4); border-radius:50%; pointer-events:none; z-index:9998; transform:translate(-50%,-50%); transition:width .22s, height .22s, border-color .22s; }
+body:has(button:hover) #curR,
+body:has(.card-shell:hover) #curR { width:38px; height:38px; border-color:var(--gold2); }
+
+.noise {
+  position:fixed; inset:0; pointer-events:none; z-index:9990; opacity:.02;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='250' height='250' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.amb {
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(ellipse 55% 45% at 12% 12%, rgba(180,144,88,.055) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 55% at 88% 88%, rgba(90,60,40,.04)   0%, transparent 65%);
+}
+
+.wrap { position:relative; z-index:1; max-width:480px; margin:0 auto; padding:0 28px; }
+
+/* ── HEADER ── */
+.hd {
+  padding: 60px 0 48px;
+  opacity:0; animation: up .9s .08s ease forwards;
+}
+
+.hd-rule { display:flex; align-items:center; gap:12px; margin-bottom:40px; }
+.hd-rule .ln { flex:1; height:1px; }
+.hd-rule .ln:first-child { background:linear-gradient(to right, transparent, var(--mist)); }
+.hd-rule .ln:last-child  { background:linear-gradient(to left,  transparent, var(--mist)); }
+.hd-rule .dm { width:4px; height:4px; background:var(--gold); transform:rotate(45deg); flex-shrink:0; }
+
+.eyebrow {
+  font-size:8.5px; letter-spacing:.44em; color:var(--gold);
+  text-transform:uppercase; margin-bottom:18px;
+}
+
+.logo {
+  font-family:'Noto Serif TC', serif;
+  font-weight:300;
+  font-size:clamp(48px, 10vw, 68px);
+  letter-spacing:.28em;
+  color:var(--cream);
+  line-height:1;
+  margin-bottom:10px;
+}
+
+.logo-sub {
+  font-family:'Cormorant', serif;
+  font-style:italic;
+  font-size:13px;
+  letter-spacing:.32em;
+  color:var(--dust);
+  margin-bottom:34px;
+}
+
+.tagline {
+  font-family:'Cormorant', serif;
+  font-style:italic;
+  font-size:15px;
+  color:var(--dust);
+  line-height:2.1;
+  letter-spacing:.04em;
+}
+
+/* ── FILTER ── */
+.filter { margin-bottom:30px; opacity:0; animation:up .9s .2s ease forwards; }
+.filter-lbl { font-size:8px; letter-spacing:.42em; color:var(--mist); text-transform:uppercase; margin-bottom:11px; }
+.filter-row { display:flex; flex-wrap:wrap; gap:7px; }
+
+.fbtn {
+  background:transparent; border:1px solid var(--mist); color:var(--dust);
+  font-family:'Jost',sans-serif; font-weight:300; font-size:9px;
+  letter-spacing:.24em; text-transform:uppercase; padding:6px 13px;
+  border-radius:2px;
+  cursor:none; transition:all .25s; position:relative; overflow:hidden;
+}
+.fbtn::after { content:''; position:absolute; inset:0; background:var(--gold); transform:scaleX(0); transform-origin:left; transition:transform .3s cubic-bezier(.4,0,.2,1); z-index:0; }
+.fbtn span { position:relative; z-index:1; transition:color .25s; }
+.fbtn:hover { border-color:var(--gold2); }
+.fbtn:hover span { color:var(--gold2); }
+.fbtn.active { border-color:var(--gold); }
+.fbtn.active::after { transform:scaleX(1); }
+.fbtn.active span { color:var(--ink); }
+
+/* ── STATS ── */
+.stats {
+  display:flex; align-items:center; gap:14px;
+  margin-bottom:18px;
+  opacity:0; animation:up .9s .3s ease forwards;
+}
+.stat-t { font-family:'Cormorant',serif; font-size:11.5px; color:var(--dust); letter-spacing:.06em; white-space:nowrap; }
+.stat-t strong { font-style:italic; font-size:17px; color:var(--gold2); font-weight:400; }
+.prog { flex:1; height:1px; background:var(--mist); position:relative; }
+.prog-fill { position:absolute; left:0; top:0; bottom:0; background:linear-gradient(to right, var(--gold), var(--gold2)); transition:width .6s cubic-bezier(.4,0,.2,1); width:0%; }
+.prog-dot  { position:absolute; right:-3px; top:-3px; width:6px; height:6px; background:var(--gold2); border-radius:50%; box-shadow:0 0 8px var(--gold); opacity:0; transition:opacity .4s; }
+.prog-fill.on .prog-dot { opacity:1; }
+
+/* ── STAGE ── */
+.stage {
+  display:flex; justify-content:center;
+  margin-bottom:18px;
+  opacity:0; animation:up .9s .38s ease forwards;
+}
+
+.stack { position:relative; width:100%; max-width:320px; }
+
+/* ghost shadow cards */
+.ghost {
+  position:absolute; inset:0; pointer-events:none;
+  border:1px solid rgba(180,144,88,.1);
+  background:rgba(180,144,88,.025);
+  border-radius:var(--radius);
+}
+.g2 { transform:translate(8px,8px) rotate(2deg); }
+.g1 { transform:translate(4px,4px) rotate(.8deg); }
+
+/* THE CARD */
+.card-shell {
+  position:relative; width:100%;
+  aspect-ratio: 2.5 / 3.5;
+  background:var(--card);
+  border-radius:var(--radius);          /* ← 圓角 */
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  cursor:none;
+  transition:transform .32s ease, box-shadow .35s ease;
+  box-shadow:
+    0 2px 8px  rgba(0,0,0,.22),
+    0 12px 36px rgba(0,0,0,.42),
+    0 32px 64px rgba(0,0,0,.22);
+  overflow:hidden;
+}
+/* paper texture */
+.card-shell::before {
+  content:''; position:absolute; inset:0; border-radius:var(--radius);
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='.028'/%3E%3C/svg%3E");
+  pointer-events:none; z-index:0;
+}
+/* subtle warm gradient on card */
+.card-shell::after {
+  content:''; position:absolute; inset:0; border-radius:var(--radius);
+  background:linear-gradient(160deg, rgba(255,252,245,.6) 0%, rgba(240,232,218,.2) 60%, transparent 100%);
+  pointer-events:none; z-index:0;
+}
+.card-shell:hover {
+  transform:translateY(-6px) rotate(-.3deg);
+  box-shadow:
+    0 4px 14px  rgba(0,0,0,.28),
+    0 20px 52px rgba(0,0,0,.48),
+    0 48px 80px rgba(0,0,0,.24);
+}
+
+/* top shimmer line */
+.card-shine {
+  position:absolute; top:0; left:15%; right:15%; height:1px;
+  background:linear-gradient(to right, transparent, rgba(255,248,232,.7), transparent);
+  border-radius:1px; z-index:1;
+}
+
+/* ── BACK FACE ── */
+.face-back {
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:12px; padding:32px 24px; width:100%; height:100%; position:relative; z-index:1;
+}
+
+.back-watermark {
+  font-family:'Noto Serif TC', serif;
+  font-weight:300;
+  font-size:clamp(32px, 8vw, 44px);
+  letter-spacing:.36em;
+  color:rgba(180,144,88,.18);
+  line-height:1;
+  user-select:none;
+}
+
+/* tiny ornament */
+.back-orn {
+  display:flex; align-items:center; gap:8px;
+}
+.back-orn::before, .back-orn::after {
+  content:''; width:20px; height:1px;
+  background:rgba(180,144,88,.25);
+}
+.back-orn-diamond {
+  width:4px; height:4px;
+  background:rgba(180,144,88,.35);
+  transform:rotate(45deg);
+}
+
+.back-title {
+  font-family:'Noto Serif TC', serif;
+  font-weight:300; font-size:14px;
+  color:var(--ink2); letter-spacing:.12em;
+  text-align:center;
+}
+.back-sub {
+  font-family:'Cormorant',serif; font-style:italic;
+  font-size:11px; letter-spacing:.22em;
+  color:rgba(104,96,90,.5);
+}
+
+/* ── FRONT FACE ── */
+.face-front {
+  display:none; flex-direction:column; align-items:center; justify-content:center;
+  padding:28px 26px 24px; width:100%; height:100%;
+  position:relative; z-index:1; gap:0;
+}
+
+.card-cat {
+  font-family:'Jost',sans-serif; font-weight:300;
+  font-size:7px; letter-spacing:.5em; text-transform:uppercase;
+  color:var(--gold);
+  display:flex; align-items:center; gap:7px;
+  margin-bottom:12px;
+}
+.card-cat::before,.card-cat::after { content:''; width:14px; height:1px; background:rgba(180,144,88,.35); }
+
+.card-no {
+  font-family:'Cormorant',serif; font-style:italic;
+  font-size:9.5px; color:rgba(104,96,90,.5);
+  letter-spacing:.18em; margin-bottom:16px;
+}
+
+.card-q {
+  font-family:'Noto Serif TC', serif;
+  font-weight:300;
+  font-size:clamp(13.5px, 2.8vw, 16px);
+  color:var(--ink);
+  line-height:2;
+  text-align:center;
+  letter-spacing:.07em;
+  margin-bottom:18px;
+}
+
+.card-rule {
+  display:flex; align-items:center; gap:7px; margin-bottom:13px; width:100%;
+}
+.card-rule::before,.card-rule::after {
+  content:''; flex:1; height:1px;
+  background:linear-gradient(to right, transparent, rgba(180,144,88,.22));
+}
+.card-rule::after { background:linear-gradient(to left, transparent, rgba(180,144,88,.22)); }
+.card-rule-glyph { font-size:7px; color:rgba(180,144,88,.4); font-family:'Cormorant',serif; }
+
+.card-hint {
+  font-family:'Cormorant',serif; font-style:italic;
+  font-size:12px; color:rgba(104,96,90,.62);
+  text-align:center; line-height:1.85; letter-spacing:.03em;
+}
+
+/* card number badge bottom */
+.card-badge {
+  position:absolute; bottom:14px; right:18px;
+  font-family:'Cormorant',serif; font-style:italic;
+  font-size:9px; color:rgba(180,144,88,.3); letter-spacing:.1em;
+}
+
+/* flip anim */
+.flip-in { animation: cardIn .48s cubic-bezier(.4,0,.2,1) forwards; }
+@keyframes cardIn {
+  from { opacity:0; transform:translateY(18px) rotateX(12deg) scale(.96); }
+  to   { opacity:1; transform:none; }
+}
+
+/* ── STATUS ── */
+.status {
+  min-height:20px; text-align:center; margin-bottom:14px;
+  font-family:'Cormorant',serif; font-style:italic;
+  font-size:12.5px; color:var(--dust); letter-spacing:.04em;
+  opacity:0; animation:up .9s .44s ease forwards;
+}
+
+/* ── CONTROLS ── */
+.ctrl {
+  display:grid; grid-template-columns:1fr auto 1fr;
+  gap:9px; align-items:center; margin-bottom:18px;
+  opacity:0; animation:up .9s .5s ease forwards;
+}
+
+.btn {
+  background:transparent; border:1px solid var(--mist); color:var(--dust);
+  font-family:'Jost',sans-serif; font-weight:300; font-size:8.5px;
+  letter-spacing:.28em; text-transform:uppercase; padding:11px 14px;
+  border-radius:2px; cursor:none; transition:all .24s; width:100%;
+}
+.btn:hover { border-color:var(--gold2); color:var(--gold2); }
+.btn:active { transform:scale(.97); }
+
+.btn.main {
+  background:var(--gold); border-color:var(--gold); color:var(--ink);
+  font-weight:400; padding:13px 22px; white-space:nowrap;
+  border-radius:3px;
+  box-shadow:0 3px 14px rgba(180,144,88,.22);
+}
+.btn.main:hover {
+  background:var(--gold2); border-color:var(--gold2);
+  transform:translateY(-2px);
+  box-shadow:0 7px 22px rgba(180,144,88,.32);
+}
+
+/* ── PIPS ── */
+.pips {
+  display:flex; flex-wrap:wrap; justify-content:center; gap:4px;
+  min-height:12px; margin-bottom:8px;
+  opacity:0; animation:up .9s .56s ease forwards;
+}
+.pip { width:3px; height:3px; border-radius:50%; background:var(--mist); transition:background .3s, transform .2s, box-shadow .2s; }
+.pip.lit { background:var(--gold); }
+.pip.now { background:var(--gold2); transform:scale(1.8); box-shadow:0 0 5px rgba(180,144,88,.55); }
+
+/* ── FOOTER ── */
+.ft {
+  padding:28px 0 56px; text-align:center;
+  border-top:1px solid rgba(56,51,46,.5); margin-top:10px;
+  opacity:0; animation:up .9s .62s ease forwards;
+}
+.ft-name { font-family:'Noto Serif TC',serif; font-size:14px; font-weight:300; color:var(--mist); letter-spacing:.36em; margin-bottom:7px; }
+.ft-sub  { font-size:8px; letter-spacing:.34em; color:rgba(56,51,46,.55); text-transform:uppercase; }
+
+@keyframes up {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:none; }
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="curR"></div>
+<div class="noise"></div>
+<div class="amb"></div>
+
+<div class="wrap">
+
+  <header class="hd">
+    <div class="hd-rule"><div class="ln"></div><div class="dm"></div><div class="ln"></div></div>
+    <div class="eyebrow">深層對話牌卡 · 100 Questions For Two</div>
+    <div class="logo">談　心</div>
+    <div class="logo-sub">Heart to Heart</div>
+    <p class="tagline">每一張牌，都是一扇門。<br>願你們在問與答之間，找到彼此最真實的樣子。</p>
+  </header>
+
+  <div class="filter">
+    <div class="filter-lbl">選擇主題</div>
+    <div class="filter-row" id="filterRow"></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-t">已抽 <strong id="dn">0</strong> / <span id="tn">100</span></div>
+    <div class="prog">
+      <div class="prog-fill" id="pf"><div class="prog-dot"></div></div>
+    </div>
+    <div class="stat-t" style="text-align:right"><strong id="rn">100</strong> 張待抽</div>
+  </div>
+
+  <div class="stage">
+    <div class="stack">
+      <div class="ghost g2"></div>
+      <div class="ghost g1"></div>
+
+      <div class="card-shell" id="cs" onclick="handleClick()">
+        <div class="card-shine"></div>
+
+        <!-- BACK -->
+        <div class="face-back" id="fb">
+          <div class="back-watermark">談心</div>
+          <div class="back-orn"><div class="back-orn-diamond"></div></div>
+          <div class="back-title" id="bt">點擊翻牌，開始對話</div>
+          <div class="back-sub"  id="bs">Heart to Heart</div>
+        </div>
+
+        <!-- FRONT -->
+        <div class="face-front" id="ff">
+          <div class="card-cat"  id="cc"></div>
+          <div class="card-no"   id="cn"></div>
+          <div class="card-q"    id="cq"></div>
+          <div class="card-rule"><span class="card-rule-glyph">◆</span></div>
+          <div class="card-hint" id="ch"></div>
+          <div class="card-badge" id="cb"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="status" id="sm"></div>
+
+  <div class="ctrl">
+    <button class="btn" onclick="prevCard()">← 上一張</button>
+    <button class="btn main" onclick="drawCard()">抽下一張</button>
+    <button class="btn" style="text-align:right" onclick="resetDeck()">洗牌 →</button>
+  </div>
+
+  <div class="pips" id="pips"></div>
+
+  <footer class="ft">
+    <div class="ft-name">談　心</div>
+    <div class="ft-sub">100 Questions · Heart to Heart · 深層關係對話牌卡</div>
+  </footer>
+
+</div>
+
+<script>
+/* cursor */
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');
+let mx=-99,my=-99,rx=-99,ry=-99;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;});
+(function loop(){
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+  rx+=(mx-rx)*.13; ry+=(my-ry)*.13;
+  curR.style.left=rx+'px'; curR.style.top=ry+'px';
+  requestAnimationFrame(loop);
+})();
+
+/* ── DATA ── */
+const ALL=[
+  {cat:"內心深處",q:"如果可以和世界上任何一個人共進晚餐，你會選誰？為什麼？",hint:"可以是真實的人，或歷史上的人"},
+  {cat:"內心深處",q:"你人生中最大的成就是什麼？",hint:"不一定是別人眼中的成功"},
+  {cat:"內心深處",q:"你最後悔的一件事是什麼？如果可以重來，你會怎麼做？",hint:"關於選擇，或沒有選擇的那一次"},
+  {cat:"內心深處",q:"你上一次在別人面前哭是什麼時候？當時發生了什麼？",hint:"哭泣是一種誠實"},
+  {cat:"內心深處",q:"你有什麼絕對不願意妥協的事情？",hint:"那條你不會越過的線"},
+  {cat:"內心深處",q:"如果可以預知未來，你最想知道哪一件事？",hint:"那個答案透露了你最深的渴望"},
+  {cat:"內心深處",q:"你最深的恐懼是什麼？有多少人知道這件事？",hint:"只說你願意說的部分就好"},
+  {cat:"內心深處",q:"你覺得自己人生中最重要的轉捩點是什麼？",hint:"那個讓你變成現在這個你的時刻"},
+  {cat:"內心深處",q:"你有什麼不為人知的才能或愛好？",hint:"那些沒放進 IG 的部分"},
+  {cat:"內心深處",q:"如果明天就是世界末日，你今天會怎麼度過？",hint:"第一個想到的通常最真實"},
+  {cat:"內心深處",q:"你的童年記憶裡，哪一個場景讓你最有安全感？",hint:"氣味、光線、聲音——任何細節都算"},
+  {cat:"內心深處",q:"你有沒有一個從來沒有放棄的夢想？那是什麼？",hint:"那個你一直留著的版本"},
+  {cat:"內心深處",q:"你最後一次感覺「我真的活著」是什麼時候？",hint:"那個讓你心跳加速的瞬間"},
+  {cat:"內心深處",q:"如果必須用三個詞來形容你自己，你會選哪三個？",hint:"試試那些不容易說出口的詞"},
+  {cat:"內心深處",q:"你有什麼話，很想對過去的自己說？",hint:"現在的你，想給那時候的你什麼？"},
+
+  {cat:"相處默契",q:"我們發生衝突時，你傾向於立刻面對，還是需要先冷靜一段時間？",hint:"沒有對錯，只是方式不同"},
+  {cat:"相處默契",q:"我做過最讓你感動的一件事是什麼？",hint:"不論大小，任何時刻都算"},
+  {cat:"相處默契",q:"我做過讓你最生氣或受傷的事是什麼？",hint:"這道題需要勇氣"},
+  {cat:"相處默契",q:"你覺得自己目前最想改善的性格缺點是什麼？",hint:"那個你自己也知道的"},
+  {cat:"相處默契",q:"在親密關係中，你最看重「誠實」還是「體貼」？",hint:"當兩者衝突時，你怎麼選？"},
+  {cat:"相處默契",q:"你希望我在什麼時候主動給你空間，什麼時候主動靠近你？",hint:"說出你的需求語言"},
+  {cat:"相處默契",q:"「被愛」這件事，對你來說最重要的表現方式是什麼？",hint:"行動？語言？陪伴？"},
+  {cat:"相處默契",q:"你什麼時候最難開口說出自己的感受？那時候你通常怎麼做？",hint:"那個沉默背後的故事"},
+  {cat:"相處默契",q:"如果你可以在我們的關係中改變一件事，你希望改變什麼？",hint:"這道題很難，但很重要"},
+  {cat:"相處默契",q:"你覺得我最了解你的地方是什麼？最不了解的地方呢？",hint:"我眼中的你，和你眼中的自己有多少差距？"},
+  {cat:"相處默契",q:"你什麼時候覺得最孤獨？就算我在你身邊也是。",hint:"孤獨不是距離，是某種無法被接觸的感覺"},
+  {cat:"相處默契",q:"你覺得「道歉」對你來說難還是容易？為什麼？",hint:"你上一次真心道歉是什麼時候？"},
+  {cat:"相處默契",q:"當你壓力很大的時候，你最需要對方做什麼？",hint:"告訴我怎麼陪你"},
+  {cat:"相處默契",q:"你有什麼習慣或特質，是你希望對方能夠包容的？",hint:"那個你知道自己有，但說出來很難的部分"},
+  {cat:"相處默契",q:"你覺得我們之間最強的默契是什麼？",hint:"那些不用說就懂的瞬間"},
+
+  {cat:"價值觀",q:"如果突然獲得一筆大錢，完全不需要工作，你最想做什麼？",hint:"第一個想到的通常最真實"},
+  {cat:"價值觀",q:"在工作、朋友、伴侶和家人之間，你的優先順序是什麼？",hint:"這個排序有沒有讓你感到罪惡？"},
+  {cat:"價值觀",q:"你對「完美的家」有什麼想像？不管是空間、氣氛，或是裡面的人。",hint:"家對你來說是什麼感覺？"},
+  {cat:"價值觀",q:"你最喜歡的 me time 是什麼？你需要多少獨處的時間？",hint:"獨處讓你充電，還是讓你感到孤單？"},
+  {cat:"價值觀",q:"你如何定義「背叛」？什麼行為對你來說是不可原諒的？",hint:"這道題也許能避免很多誤解"},
+  {cat:"價值觀",q:"你對金錢的態度是什麼？你更傾向「存」還是「用」？",hint:"花錢讓你安心，還是讓你焦慮？"},
+  {cat:"價值觀",q:"你覺得「忠誠」在友誼和愛情中分別代表什麼？",hint:"對朋友和對伴侶的忠誠，是一樣的嗎？"},
+  {cat:"價值觀",q:"你有沒有什麼生活儀式，是你非常重視、不能被打亂的？",hint:"那些讓你保持穩定的小事"},
+  {cat:"價值觀",q:"如果你的好朋友做了一件你覺得不對的事，你會說出來還是沉默？",hint:"友誼的底線在哪裡？"},
+  {cat:"價值觀",q:"你比較珍視「自由」還是「安全感」？在哪個面向最明顯？",hint:"這兩個常常互相衝突"},
+  {cat:"價值觀",q:"你對「成功」的定義是什麼？這個定義和五年前一樣嗎？",hint:"誰定義了你的成功標準？"},
+  {cat:"價值觀",q:"你覺得「分享」和「隱私」在關係中的界限在哪裡？",hint:"有什麼是你不想被知道的？"},
+  {cat:"價值觀",q:"你對宗教或靈性有什麼看法？這件事對你的日常有影響嗎？",hint:"可以是任何讓你感到意義的事物"},
+  {cat:"價值觀",q:"你如何看待「失敗」？它對你來說意味著什麼？",hint:"你最後一次真的覺得自己失敗是什麼時候？"},
+  {cat:"價值觀",q:"「快樂」和「有意義」，哪個對你更重要？能魚與熊掌兼得嗎？",hint:"如果必須選一個…"},
+
+  {cat:"成長故事",q:"對你影響最深的一個人是誰？他／她讓你變成了什麼樣的人？",hint:"可以是正面影響，也可以是反面教材"},
+  {cat:"成長故事",q:"你的童年是什麼樣子的？有什麼你很珍惜或很想逃離的部分？",hint:"我們都是從某個童年走來的"},
+  {cat:"成長故事",q:"你有沒有一段讓你徹底改變的關係——友情或愛情都算？",hint:"那個讓你長大的人"},
+  {cat:"成長故事",q:"你人生中最艱難的一段時期是什麼？你是怎麼撐過來的？",hint:"那段時間讓你學到了什麼？"},
+  {cat:"成長故事",q:"你成長過程中，家裡有什麼從來不被討論的話題？",hint:"那些沉默也是一種教育"},
+  {cat:"成長故事",q:"你有沒有什麼秘密，幾乎沒有人知道？",hint:"只說你願意說的部分就好"},
+  {cat:"成長故事",q:"你在哪個時刻第一次覺得「我長大了」？",hint:"那個瞬間是什麼感覺？"},
+  {cat:"成長故事",q:"你有沒有讓自己後悔很久的一個決定？現在看它，感覺不同了嗎？",hint:"時間改變了你對它的詮釋嗎？"},
+  {cat:"成長故事",q:"父母或家人對你最大的期望是什麼？你接受了，還是一直在抵抗？",hint:"那個期望和你真正想要的有多遠？"},
+  {cat:"成長故事",q:"你的第一次戀愛教會了你什麼？",hint:"那段關係留下了什麼"},
+  {cat:"成長故事",q:"你曾經最崇拜的人是誰？你現在還崇拜他／她嗎？",hint:"崇拜的對象也是一面鏡子"},
+  {cat:"成長故事",q:"你有沒有為了某件事感到驕傲，但從來沒有機會說出口？",hint:"說出來吧，我想聽"},
+  {cat:"成長故事",q:"如果你的人生是一本書，現在是第幾章？這章的標題會是什麼？",hint:"故事還沒結束"},
+  {cat:"成長故事",q:"你有沒有某個一直陪著你的習慣或物品，承載著重要的記憶？",hint:"那個讓你有安全感的東西"},
+  {cat:"成長故事",q:"你有沒有一件「本來要做但沒有做」的事，讓你耿耿於懷至今？",hint:"那扇還沒關上的門"},
+
+  {cat:"未來願景",q:"十年後，你希望自己成為什麼樣的人？",hint:"不是職業，是那個人的感覺和狀態"},
+  {cat:"未來願景",q:"你理想的退休生活在哪裡？過什麼樣的日子？",hint:"讓你想放鬆的那個畫面"},
+  {cat:"未來願景",q:"你目前生命中最想克服的一個障礙是什麼？",hint:"那個在你心裡佔了多少空間？"},
+  {cat:"未來願景",q:"你希望我們的關係在五年後是什麼樣子？",hint:"說出你心裡的那個版本"},
+  {cat:"未來願景",q:"如果可以改寫人生中的一個選擇，你會選什麼？",hint:"改寫後你會是不同的人嗎？"},
+  {cat:"未來願景",q:"你對婚姻或長期承諾的態度是什麼？你相信它嗎？",hint:"不要說「應該」的那個答案，說你真正相信的"},
+  {cat:"未來願景",q:"你有沒有一個「秘密計畫」或夢想，還沒告訴很多人？",hint:"那個你一直在心裡醞釀的事"},
+  {cat:"未來願景",q:"你害怕變老嗎？關於老去，什麼讓你恐懼或期待？",hint:"時間對你來說是朋友還是敵人？"},
+  {cat:"未來願景",q:"你希望在自己的葬禮上，人們怎麼記住你？",hint:"那個你最想留下的印象"},
+  {cat:"未來願景",q:"如果你可以給未來的自己一封信，你會寫什麼？",hint:"那封信也說出了你現在想說的"},
+  {cat:"未來願景",q:"你有沒有一件「有一天我一定要去做」的事？那個有一天是什麼時候？",hint:"把它說出來，讓它更真實"},
+  {cat:"未來願景",q:"對你來說，「好好生活」是什麼樣子的？",hint:"那個讓你覺得「對，就是這樣」的狀態"},
+  {cat:"未來願景",q:"你希望自己成為什麼樣的父母或前輩？",hint:"那個你想傳承的東西是什麼？"},
+  {cat:"未來願景",q:"如果你知道自己只剩一年的時間，你會優先做什麼？",hint:"那個答案告訴你什麼才是真正重要的"},
+  {cat:"未來願景",q:"我們在性格上最大的差異是什麼？這是我們的資產，還是隱患？",hint:"不同不一定是問題，但值得正視"},
+
+  {cat:"此刻此地",q:"在這個當下，你心裡在想什麼？你願意說出來嗎？",hint:"不需要完整，片段也可以"},
+  {cat:"此刻此地",q:"最近讓你感到最快樂的一件小事是什麼？",hint:"越小越好，越具體越好"},
+  {cat:"此刻此地",q:"最近你睡著前，腦子裡最常轉的是什麼？",hint:"那些追著你的念頭"},
+  {cat:"此刻此地",q:"你現在生命中最感謝的一件事是什麼？",hint:"也許是你平常不會想到要說的"},
+  {cat:"此刻此地",q:"如果今天是你人生最後一天，你最想對我說什麼？",hint:"現在就說吧"},
+  {cat:"此刻此地",q:"最近你做過最衝動的一件事是什麼？你後悔嗎？",hint:"那個沒有想太多就去做的瞬間"},
+  {cat:"此刻此地",q:"你現在最需要的是什麼？（可以是任何東西）",hint:"不用合理，不用可行"},
+  {cat:"此刻此地",q:"如果我可以給你一個禮物，任何東西都行，你希望是什麼？",hint:"不用說「不用了」"},
+  {cat:"此刻此地",q:"今天，你有沒有哪一刻特別感覺到「活著真好」？",hint:"就算很小，也算"},
+  {cat:"此刻此地",q:"你現在對我們的關係有什麼感覺？",hint:"一個詞，或一個畫面都可以"},
+  {cat:"此刻此地",q:"此刻你身體有沒有哪裡不舒服？你有好好照顧自己嗎？",hint:"身體常常比嘴巴更誠實"},
+  {cat:"此刻此地",q:"如果今天的心情是一種天氣，是什麼？",hint:"晴、陰、大雨、還是霧？"},
+  {cat:"此刻此地",q:"最近你有沒有在逃避什麼？那是什麼？",hint:"不用解釋為什麼，說出來就好"},
+  {cat:"此刻此地",q:"此刻坐在我對面，你有什麼想對我說但還沒說的？",hint:"就算只是一個字也算"},
+  {cat:"此刻此地",q:"你現在最想聽到的一句話是什麼？",hint:"那句話說出口之前，我想先聽你說"},
+  {cat:"此刻此地",q:"今晚回家之後，你最想做的第一件事是什麼？",hint:"那件事透露了你現在最需要什麼"},
+  {cat:"內心深處",q:"你有沒有一種「說不出口的信念」，默默地影響著你所有的選擇？",hint:"那個你從沒明說、但一直在遵守的規則"},
+  {cat:"內心深處",q:"你覺得你真正被理解過嗎？是誰，在什麼時候？",hint:"那個「被看見」的瞬間"},
+  {cat:"相處默契",q:"你有沒有曾經對我隱瞞過什麼，現在想說了？",hint:"不一定要說，但如果想說，這是機會"},
+  {cat:"相處默契",q:"你覺得我們的關係裡，有哪些話題是我們一直在迴避的？",hint:"那些我們都心知肚明、卻沒開口的事"},
+  {cat:"價值觀",q:"你覺得「公平」和「善良」，哪個更重要？能舉一個例子嗎？",hint:"當兩者衝突的時候，你會怎麼選？"},
+  {cat:"成長故事",q:"你小時候最常做的白日夢是什麼？那個夢現在還在嗎？",hint:"孩子時候的渴望往往最誠實"},
+  {cat:"未來願景",q:"如果可以為我們的關係設定一個「共同目標」，你希望那是什麼？",hint:"不一定要很宏大，可以是一件很小的事"},
+  {cat:"成長故事",q:"你有沒有一段時期，你覺得自己迷失了？後來是什麼讓你找回方向的？",hint:"那個把你拉回來的人、事或感受"},
+  {cat:"價值觀",q:"你覺得「改變」是一件好事嗎？你害怕改變，還是渴望改變？",hint:"說說你現在和過去的自己，有什麼不同"},
+];
+
+const CATS=["全部","內心深處","相處默契","價值觀","成長故事","未來願景","此刻此地"];
+let cat="全部",deck=[],hist=[],pos=-1;
+
+const filtered=()=>cat==="全部"?[...ALL]:ALL.filter(c=>c.cat===cat);
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+
+function initDeck(){
+  deck=shuffle(filtered());
+  hist=[];pos=-1;
+  sync();buildPips();
+}
+
+function handleClick(){ drawCard(); }
+
+function drawCard(){
+  if(pos+1>=deck.length){
+    document.getElementById('sm').textContent='所有牌卡已抽完 · 點擊「洗牌」以繼續';
+    return;
+  }
+  document.getElementById('sm').textContent='';
+  pos++;hist.push(pos);
+  render(deck[pos]);sync();buildPips();
+}
+
+function prevCard(){
+  if(hist.length<2)return;
+  hist.pop();pos=hist[hist.length-1];
+  render(deck[pos]);sync();buildPips();
+}
+
+function resetDeck(){
+  document.getElementById('fb').style.display='flex';
+  document.getElementById('ff').style.display='none';
+  document.getElementById('sm').textContent='';
+  document.getElementById('bt').textContent='牌已洗好，準備好了嗎？';
+  document.getElementById('bs').textContent='Heart to Heart';
+  initDeck();
+}
+
+function render(c){
+  document.getElementById('fb').style.display='none';
+  document.getElementById('ff').style.display='flex';
+  const idx=ALL.findIndex(x=>x.q===c.q);
+  document.getElementById('cc').textContent=c.cat;
+  document.getElementById('cn').textContent='No. '+String(idx+1).padStart(3,'0');
+  document.getElementById('cq').textContent=c.q;
+  document.getElementById('ch').textContent=c.hint||'';
+  document.getElementById('cb').textContent=String(idx+1).padStart(3,'0');
+  const ff=document.getElementById('ff');
+  ff.classList.remove('flip-in');void ff.offsetWidth;ff.classList.add('flip-in');
+}
+
+function sync(){
+  const tot=deck.length,drn=hist.length,rem=tot-drn,pct=tot?drn/tot*100:0;
+  document.getElementById('dn').textContent=drn;
+  document.getElementById('tn').textContent=tot;
+  document.getElementById('rn').textContent=rem;
+  const pf=document.getElementById('pf');
+  pf.style.width=pct+'%';
+  pf.classList.toggle('on',drn>0);
+}
+
+function buildPips(){
+  const el=document.getElementById('pips'),tot=Math.min(deck.length,60),drn=hist.length;
+  el.innerHTML='';
+  for(let i=0;i<tot;i++){
+    const p=document.createElement('div');
+    p.className='pip'+(i<drn-1?' lit':i===drn-1?' now':'');
+    el.appendChild(p);
+  }
+}
+
+function buildFilter(){
+  const row=document.getElementById('filterRow');row.innerHTML='';
+  CATS.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='fbtn'+(c===cat?' active':'');
+    b.innerHTML=`<span>${c}</span>`;
+    b.onclick=()=>{
+      cat=c;buildFilter();initDeck();
+      document.getElementById('fb').style.display='flex';
+      document.getElementById('ff').style.display='none';
+      document.getElementById('bt').textContent='點擊翻牌，開始對話';
+      document.getElementById('bs').textContent='Heart to Heart';
+    };
+    row.appendChild(b);
+  });
+}
+
+buildFilter();initDeck();
+</script>
+</body>
+</html>
