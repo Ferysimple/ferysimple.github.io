@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>木火土</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Serif+TC:wght@200;300;400&display=swap');
+
+/*
+  TYPE SCALE — 只有三個尺寸
+  --ts-lg  : 大標、品牌主張
+  --ts-md  : 小標題
+  --ts-sm  : 內文、標籤
+*/
+:root {
+  --ts-lg:  2rem;
+  --ts-md:  1.05rem;
+  --ts-sm:  0.875rem;
+
+  --ink:    #000000;
+  --soft:   #333333;
+  --muted:  #888888;
+  --rule:   #d8d8d8;
+  --wood:   #4a6741;
+  --fire:   #a84030;
+  --earth:  #8a7040;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #fff;
+  color: var(--ink);
+  font-family: 'Noto Serif TC', serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: 0.02em;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 120px 56px 140px;
+}
+
+/* ── Reveal ── */
+.r { opacity: 0; transform: translateY(14px); animation: up 1s cubic-bezier(0.16,1,0.3,1) forwards; }
+@keyframes up { to { opacity: 1; transform: none; } }
+
+/* ── 共用 ── */
+hr { border: none; border-top: 1px solid var(--rule); }
+
+.cap {
+  display: block;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--muted);
+  text-indent: 0.5em;
+}
+
+.heading {
+  display: block;
+  font-size: var(--ts-md);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  word-break: keep-all;
+  line-height: 1.6;
+}
+
+.body {
+  font-size: var(--ts-sm);
+  line-height: 2.1;
+  letter-spacing: 0.06em;
+  color: var(--soft);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* ══════════════════════════════
+   MASTHEAD
+══════════════════════════════ */
+.masthead {
+  text-align: center;
+  margin-bottom: 88px;
+  animation-delay: 0s;
+}
+
+.logo {
+  font-size: 3.2rem;
+  font-weight: 200;
+  letter-spacing: 0.8em;
+  text-indent: 0.8em;
+  line-height: 1;
+  margin-bottom: 28px;
+}
+
+.masthead hr { width: 24px; margin: 0 auto 22px; }
+.masthead .cap { letter-spacing: 0.5em; }
+
+/* ══════════════════════════════
+   PHILOSOPHY
+══════════════════════════════ */
+.philosophy {
+  padding: 64px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  animation-delay: 0.1s;
+}
+
+.philosophy .cap { margin-bottom: 32px; }
+
+.phil-statement {
+  font-size: var(--ts-lg);
+  font-weight: 200;
+  line-height: 2;
+  letter-spacing: 0.15em;
+  color: var(--ink);
+  word-break: keep-all;
+  margin-bottom: 24px;
+}
+
+.phil-en {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 2;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+/* ══════════════════════════════
+   PROMISE
+══════════════════════════════ */
+.promise-section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--rule);
+  animation-delay: 0.2s;
+}
+
+.promise-section .cap { margin-bottom: 32px; }
+
+.promise-text {
+  font-size: var(--ts-lg);
+  font-weight: 200;
+  line-height: 2.2;
+  letter-spacing: 0.15em;
+  color: var(--ink);
+  word-break: keep-all;
+}
+
+/* ══════════════════════════════
+   ELEMENTS
+══════════════════════════════ */
+.elements-section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--rule);
+  animation-delay: 0.3s;
+}
+
+.elements-section .cap { margin-bottom: 40px; }
+
+.elements {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-top: 1px solid var(--rule);
+}
+
+.el {
+  padding: 40px 32px 40px 0;
+  border-right: 1px solid var(--rule);
+}
+.el:last-child { border-right: none; }
+.el + .el { padding-left: 32px; }
+
+.el-glyph {
+  display: block;
+  font-size: 2rem;
+  font-weight: 200;
+  line-height: 1;
+  margin-bottom: 20px;
+}
+.el-glyph.w { color: var(--wood); }
+.el-glyph.f { color: var(--fire); }
+.el-glyph.e { color: var(--earth); }
+
+.el .cap { margin-bottom: 18px; }
+.el .heading { margin-bottom: 14px; }
+
+/* ══════════════════════════════
+   PILLARS
+══════════════════════════════ */
+.pillars-section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--rule);
+  animation-delay: 0.4s;
+}
+
+.pillars-section .cap { margin-bottom: 0; }
+
+.pillar {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 0 32px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--rule);
+  align-items: start;
+}
+.pillar:first-of-type { border-top: 1px solid var(--rule); margin-top: 32px; }
+
+.p-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.75rem;
+  color: var(--muted);
+  padding-top: 2px;
+  letter-spacing: 0.1em;
+}
+
+.p-tag {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border: 1px solid;
+  display: inline-block;
+  margin-bottom: 12px;
+  text-indent: 0.35em;
+}
+.p-tag.w { color: var(--wood); border-color: var(--wood); }
+.p-tag.f { color: var(--fire); border-color: var(--fire); }
+.p-tag.e { color: var(--earth); border-color: var(--earth); }
+
+.pillar .heading { margin-bottom: 8px; }
+
+/* ══════════════════════════════
+   PERSONALITY
+══════════════════════════════ */
+.personality-section {
+  padding: 64px 0;
+  border-bottom: 1px solid var(--rule);
+  animation-delay: 0.5s;
+}
+
+.personality-section .cap { margin-bottom: 40px; }
+
+.personality {
+  display: grid;
+  border: 1px solid var(--rule);
+}
+
+.pers {
+  padding: 40px 20px;
+  text-align: center;
+  border-right: 1px solid var(--rule);
+}
+.pers:last-child { border-right: none; }
+
+.pers-zh {
+  display: block;
+  font-family: 'Noto Serif TC', serif;
+  font-size: 2rem;
+  font-weight: 200;
+  line-height: 1;
+  margin-bottom: 12px;
+  letter-spacing: 0.05em;
+}
+
+.pers .cap { letter-spacing: 0.3em; margin-bottom: 0; }
+
+/* ══════════════════════════════
+   FOOTER
+══════════════════════════════ */
+.footer {
+  padding-top: 72px;
+  text-align: center;
+  animation-delay: 0.6s;
+}
+
+.footer-dots {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+.dot { width: 4px; height: 4px; border-radius: 50%; }
+
+/* ── Mobile ── */
+@media (max-width: 560px) {
+  .page { padding: 72px 28px 100px; }
+  .logo { font-size: 2.2rem; }
+  .elements { grid-template-columns: 1fr; }
+  .el { border-right: none; border-bottom: 1px solid var(--rule); padding: 32px 0; }
+  .el + .el { padding-left: 0; }
+  .el:last-child { border-bottom: none; }
+  .personality { grid-template-columns: repeat(2,1fr) !important; }
+  .pers:nth-child(2) { border-right: none; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Masthead -->
+  <header class="masthead r">
+    <h1 class="logo">木火土</h1>
+    <hr>
+    <p class="cap">Brand Identity &nbsp;·&nbsp; 品牌價值體系</p>
+  </header>
+
+  <!-- Philosophy -->
+  <section class="philosophy r">
+    <span class="cap">Brand Philosophy &nbsp;·&nbsp; 品牌理念</span>
+    <p class="phil-statement">化繁為簡，創造幸福。</p>
+    <p class="phil-en">
+      Simplify the complex. Make people happier.
+    </p>
+  </section>
+
+  <!-- Promise -->
+  <section class="promise-section r">
+    <span class="cap">Brand Promise &nbsp;·&nbsp; 品牌承諾</span>
+    <p class="promise-text">不做更多，只做更好。</p>
+    <p class="phil-en" style="margin-top:24px;">We make less and better.</p>
+  </section>
+
+  <!-- Elements -->
+  <section class="elements-section r">
+    <span class="cap">Brand Philosophy &nbsp;·&nbsp; 品牌哲學</span>
+    <div class="elements">
+      <div class="el">
+        <span class="el-glyph w">木</span>
+        <span class="cap">Wood · Origin</span>
+        <span class="heading">問題的根<br><span style="font-weight:300;font-size:0.8em;color:var(--soft);">The Root of Problems</span></span>
+        <p class="body">深入思考，找到真正的解法。<br><span style="font-style:italic;color:var(--muted);">Think deep. Find the real answer.</span></p>
+      </div>
+      <div class="el">
+        <span class="el-glyph f">火</span>
+        <span class="cap">Fire · Craft</span>
+        <span class="heading">提煉的火<br><span style="font-weight:300;font-size:0.8em;color:var(--soft);">The Fire of Craft</span></span>
+        <p class="body">燃去多餘，留下核心。極簡是對本質的忠誠。<br><span style="font-style:italic;color:var(--muted);">Burn away the excess. Keep only what matters.</span></p>
+      </div>
+      <div class="el">
+        <span class="el-glyph e">土</span>
+        <span class="cap">Earth · Return</span>
+        <span class="heading">生活的落點<br><span style="font-weight:300;font-size:0.8em;color:var(--soft);">Where Life Lands</span></span>
+        <p class="body">好的設計像土壤——無聲，卻讓生活更豐盈。<br><span style="font-style:italic;color:var(--muted);">Good design is silent. It simply makes life fuller.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pillars -->
+  <section class="pillars-section r">
+    <span class="cap">Brand Pillars &nbsp;·&nbsp; 品牌支柱</span>
+    <div class="pillar">
+      <span class="p-num">01</span>
+      <div>
+        <span class="p-tag w">Simplicity</span>
+        <span class="heading">極簡是種紀律</span>
+        <p class="body">每個留下來的決定，都是承諾。<br><span style="font-style:italic;color:var(--muted);">Every choice to keep is a commitment.</span></p>
+      </div>
+    </div>
+    <div class="pillar">
+      <span class="p-num">02</span>
+      <div>
+        <span class="p-tag f">Innovation</span>
+        <span class="heading">解決困難問題</span>
+        <p class="body">我們存在於那些讓人困擾的地方。<br><span style="font-style:italic;color:var(--muted);">We solve what others avoid.</span></p>
+      </div>
+    </div>
+    <div class="pillar">
+      <span class="p-num">03</span>
+      <div>
+        <span class="p-tag e">Quality</span>
+        <span class="heading">質感來自誠實</span>
+        <p class="body">不掩飾，不取巧。<br><span style="font-style:italic;color:var(--muted);">No disguise. No shortcuts.</span></p>
+      </div>
+    </div>
+    <div class="pillar">
+      <span class="p-num">04</span>
+      <div>
+        <span class="p-tag e">Wellbeing</span>
+        <span class="heading">為幸福而設計</span>
+        <p class="body">解決問題，創造幸福，是我們存在的意義。<br><span style="font-style:italic;color:var(--muted);">Good design makes people happier.</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Personality -->
+  <section class="personality-section r">
+    <span class="cap">Brand Personality &nbsp;·&nbsp; 品牌個性</span>
+    <div style="margin-top:40px; border:1px solid var(--rule);">
+
+      <div style="display:grid; grid-template-columns:72px 1fr; border-bottom:1px solid var(--rule);">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 12px;border-right:1px solid var(--rule);gap:6px;">
+          <span style="font-family:'Noto Serif TC',serif;font-size:2rem;font-weight:200;color:var(--wood);line-height:1;">根</span>
+        </div>
+        <div style="padding:24px 28px;display:flex;flex-direction:column;justify-content:center;gap:8px;">
+          <p style="font-size:0.95rem;font-weight:400;letter-spacing:0.1em;color:var(--ink);word-break:keep-all;">紮根 <span style="font-family:'Cormorant Garamond',serif;font-size:0.75rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);">Root</span></p>
+          <p style="font-size:0.875rem;color:var(--soft);letter-spacing:0.08em;word-break:keep-all;">看見本質 <span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.85rem;color:var(--muted);">See the essence.</span></p>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:72px 1fr; border-bottom:1px solid var(--rule);">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 12px;border-right:1px solid var(--rule);gap:6px;">
+          <span style="font-family:'Noto Serif TC',serif;font-size:2rem;font-weight:200;color:var(--fire);line-height:1;">燃</span>
+        </div>
+        <div style="padding:24px 28px;display:flex;flex-direction:column;justify-content:center;gap:8px;">
+          <p style="font-size:0.95rem;font-weight:400;letter-spacing:0.1em;color:var(--ink);word-break:keep-all;">燃燒 <span style="font-family:'Cormorant Garamond',serif;font-size:0.75rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);">Burn</span></p>
+          <p style="font-size:0.875rem;color:var(--soft);letter-spacing:0.08em;word-break:keep-all;">去除多餘 <span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.85rem;color:var(--muted);">Remove the noise.</span></p>
+        </div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:72px 1fr;">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 12px;border-right:1px solid var(--rule);gap:6px;">
+          <span style="font-family:'Noto Serif TC',serif;font-size:2rem;font-weight:200;color:var(--earth);line-height:1;">沉</span>
+        </div>
+        <div style="padding:24px 28px;display:flex;flex-direction:column;justify-content:center;gap:8px;">
+          <p style="font-size:0.95rem;font-weight:400;letter-spacing:0.1em;color:var(--ink);word-break:keep-all;">沉澱 <span style="font-family:'Cormorant Garamond',serif;font-size:0.75rem;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted);">Settle</span></p>
+          <p style="font-size:0.875rem;color:var(--soft);letter-spacing:0.08em;word-break:keep-all;">留下真實 <span style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:0.85rem;color:var(--muted);">Keep what's true.</span></p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer r">
+    <div class="footer-dots">
+      <div class="dot" style="background:var(--wood)"></div>
+      <div class="dot" style="background:var(--fire)"></div>
+      <div class="dot" style="background:var(--earth)"></div>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>
