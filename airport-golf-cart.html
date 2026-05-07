@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TERMINAL CHAOS — 機場高爾夫球車撞人大賽</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0a0f;
+    color: #fff;
+    font-family: 'Space Mono', monospace;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  #ui {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 16px 24px;
+    pointer-events: none;
+  }
+
+  .score-panel {
+    background: rgba(0,0,0,0.7);
+    border: 1px solid rgba(255,220,0,0.4);
+    padding: 10px 20px;
+    backdrop-filter: blur(10px);
+  }
+
+  .score-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: #ffdc00;
+    opacity: 0.7;
+  }
+
+  .score-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px;
+    line-height: 1;
+    color: #fff;
+  }
+
+  .combo-panel {
+    text-align: center;
+  }
+
+  .combo-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: #ff4444;
+    text-shadow: 0 0 20px #ff4444;
+    transition: transform 0.1s;
+  }
+
+  .speed-panel {
+    text-align: right;
+  }
+
+  #canvas {
+    display: block;
+    cursor: none;
+  }
+
+  #overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    font-family: 'Bebas Neue', sans-serif;
+  }
+
+  #overlay h1 {
+    font-size: clamp(48px, 10vw, 100px);
+    letter-spacing: 4px;
+    color: #ffdc00;
+    text-shadow: 0 0 40px rgba(255,220,0,0.5);
+    margin-bottom: 8px;
+  }
+
+  #overlay .sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: rgba(255,255,255,0.5);
+    letter-spacing: 4px;
+    margin-bottom: 48px;
+  }
+
+  #overlay .instructions {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+    text-align: center;
+    line-height: 2;
+    margin-bottom: 40px;
+  }
+
+  #overlay .instructions span {
+    background: rgba(255,220,0,0.15);
+    border: 1px solid rgba(255,220,0,0.3);
+    padding: 2px 8px;
+    color: #ffdc00;
+  }
+
+  #startBtn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 6px;
+    background: #ffdc00;
+    color: #000;
+    border: none;
+    padding: 16px 48px;
+    cursor: pointer;
+    transition: all 0.2s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  #startBtn:hover {
+    background: #fff;
+    transform: scale(1.05);
+  }
+
+  #gameOverPanel {
+    text-align: center;
+  }
+
+  #gameOverPanel h2 {
+    font-size: 80px;
+    color: #ff4444;
+    text-shadow: 0 0 40px #ff4444;
+    margin-bottom: 16px;
+  }
+
+  #gameOverPanel .final-score {
+    font-size: 40px;
+    color: #ffdc00;
+    margin-bottom: 8px;
+  }
+
+  #gameOverPanel .high-score {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 3px;
+    margin-bottom: 40px;
+  }
+
+  /* Mobile controls */
+  #mobileControls {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    display: none;
+    padding: 16px;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+
+  .ctrl-btn {
+    width: 70px; height: 70px;
+    background: rgba(255,220,0,0.15);
+    border: 2px solid rgba(255,220,0,0.4);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px;
+    cursor: pointer;
+    touch-action: none;
+    color: #ffdc00;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .ctrl-btn:active { background: rgba(255,220,0,0.35); }
+
+  .ctrl-row { display: flex; gap: 12px; flex-direction: column; align-items: center; }
+  .ctrl-lr { display: flex; gap: 60px; }
+
+  @media (max-width: 768px) {
+    #mobileControls { display: flex; }
+  }
+
+  .hit-text {
+    position: fixed;
+    font-family: 'Bebas Neue', sans-serif;
+    pointer-events: none;
+    z-index: 150;
+    text-shadow: 2px 2px 0 #000;
+    animation: hitFloat 0.8s ease-out forwards;
+  }
+
+  @keyframes hitFloat {
+    0% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-80px) scale(1.4); }
+  }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <div class="score-panel">
+    <div class="score-label">SCORE</div>
+    <div class="score-val" id="scoreDisplay">0</div>
+  </div>
+  <div class="score-panel combo-panel" id="comboPanel" style="opacity:0">
+    <div class="score-label">COMBO</div>
+    <div class="combo-val" id="comboDisplay">x1</div>
+  </div>
+  <div class="score-panel speed-panel">
+    <div class="score-label">TIME LEFT</div>
+    <div class="score-val" id="timerDisplay">60</div>
+  </div>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<div id="mobileControls">
+  <div class="ctrl-lr">
+    <div class="ctrl-btn" id="btnLeft">◀</div>
+    <div class="ctrl-btn" id="btnRight">▶</div>
+  </div>
+  <div class="ctrl-row">
+    <div class="ctrl-btn" id="btnUp">▲</div>
+    <div class="ctrl-btn" id="btnDown">▼</div>
+  </div>
+</div>
+
+<div id="overlay">
+  <div id="startPanel">
+    <h1>TERMINAL<br>CHAOS</h1>
+    <p class="sub">機場高爾夫球車撞人大賽</p>
+    <div class="instructions">
+      <span>↑ ↓ ← →</span> 或 <span>WASD</span> 移動<br>
+      按哪個方向就往哪個方向開<br>
+      在機場走道撞倒旅客得分<br>
+      連續撞人可獲得 COMBO 加成<br>
+      60秒內撞越多越好！
+    </div>
+    <button id="startBtn" onclick="startGame()">START ENGINE 🚗</button>
+  </div>
+  <div id="gameOverPanel" style="display:none">
+    <h2>GAME OVER</h2>
+    <div class="final-score">SCORE: <span id="finalScore">0</span></div>
+    <div class="high-score">BEST: <span id="highScore">0</span></div>
+    <button id="startBtn" onclick="startGame()">再玩一次 🔄</button>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+
+let W, H;
+function resize() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener('resize', resize);
+
+// Game state
+let gameRunning = false;
+let score = 0;
+let combo = 1;
+let comboTimer = 0;
+let timeLeft = 60;
+let highScore = 0;
+let animId;
+
+// Cart
+const cart = {
+  x: 200, y: 300,
+  w: 52, h: 32,
+  vx: 0, vy: 0,
+  speed: 0,
+  angle: 0,
+  turnAngle: 0,
+  maxSpeed: 5,
+  boosting: false,
+};
+
+// Camera
+let camX = 0, camY = 0;
+
+// Keys
+const keys = {};
+window.addEventListener('keydown', e => keys[e.key] = true);
+window.addEventListener('keyup', e => keys[e.key] = false);
+
+// Mobile controls
+const mobileKeys = { up: false, down: false, left: false, right: false };
+function bindBtn(id, key) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('touchstart', e => { e.preventDefault(); mobileKeys[key] = true; }, { passive: false });
+  el.addEventListener('touchend', e => { e.preventDefault(); mobileKeys[key] = false; }, { passive: false });
+  el.addEventListener('mousedown', () => mobileKeys[key] = true);
+  el.addEventListener('mouseup', () => mobileKeys[key] = false);
+}
+bindBtn('btnUp', 'up');
+bindBtn('btnDown', 'down');
+bindBtn('btnLeft', 'left');
+bindBtn('btnRight', 'right');
+
+function isUp()    { return keys['ArrowUp']    || keys['w'] || keys['W'] || mobileKeys.up; }
+function isDown()  { return keys['ArrowDown']  || keys['s'] || keys['S'] || mobileKeys.down; }
+function isLeft()  { return keys['ArrowLeft']  || keys['a'] || keys['A'] || mobileKeys.left; }
+function isRight() { return keys['ArrowRight'] || keys['d'] || keys['D'] || mobileKeys.right; }
+
+// Map
+const TILE = 80;
+const MAP_W = 40;  // tiles wide
+const MAP_H = 18;  // tiles tall
+
+// Corridors: list of {x, y, w, h} in tile units - the walkable areas
+const corridors = [
+  { x: 0, y: 4, w: 40, h: 10 },     // main long corridor
+  { x: 5, y: 0, w: 6, h: 14 },      // gate A branch
+  { x: 16, y: 0, w: 6, h: 14 },     // gate B branch
+  { x: 28, y: 0, w: 6, h: 14 },     // gate C branch
+  { x: 5, y: 4, w: 6, h: 14 },
+  { x: 16, y: 4, w: 6, h: 14 },
+  { x: 28, y: 4, w: 6, h: 14 },
+];
+
+// Precompute walkable tile map
+const tileMap = [];
+for (let ty = 0; ty < MAP_H; ty++) {
+  tileMap[ty] = [];
+  for (let tx = 0; tx < MAP_W; tx++) {
+    let walkable = false;
+    for (const c of corridors) {
+      if (tx >= c.x && tx < c.x + c.w && ty >= c.y && ty < c.y + c.h) {
+        walkable = true; break;
+      }
+    }
+    tileMap[ty][tx] = walkable;
+  }
+}
+
+function isWalkable(px, py) {
+  const tx = Math.floor(px / TILE);
+  const ty = Math.floor(py / TILE);
+  if (tx < 0 || ty < 0 || tx >= MAP_W || ty >= MAP_H) return false;
+  return tileMap[ty][tx];
+}
+
+function isRectWalkable(x, y, w, h) {
+  const margin = 4;
+  return isWalkable(x + margin, y + margin) &&
+         isWalkable(x + w - margin, y + margin) &&
+         isWalkable(x + margin, y + h - margin) &&
+         isWalkable(x + w - margin, y + h - margin);
+}
+
+// NPCs / people
+let npcs = [];
+const NPC_SHIRT_COLORS = ['#e74c3c','#3498db','#2ecc71','#9b59b6','#e67e22','#1abc9c','#e91e63','#607d8b','#f39c12','#00bcd4'];
+const NPC_PANT_COLORS  = ['#2c3e50','#34495e','#7f8c8d','#4a235a','#1a5276','#784212','#212121','#37474f','#1b2631'];
+const NPC_SKIN_TONES   = ['#FDBCB4','#F1C27D','#E0AC69','#C68642','#8D5524','#FFCC99'];
+const NPC_EMOJIS = ['🧳','💼','🎒','👜','📱'];
+const REACTIONS = ['WHAM!','BONK!','OOF!','YEET!','POW!','ZAP!','CRASH!'];
+
+function spawnNPC() {
+  const c = corridors[Math.floor(Math.random() * corridors.length)];
+  const tx = c.x + Math.random() * (c.w - 1);
+  const ty = c.y + Math.random() * (c.h - 1);
+  const x = tx * TILE + 10 + Math.random() * (TILE - 20);
+  const y = ty * TILE + 10 + Math.random() * (TILE - 20);
+  const angle = Math.random() * Math.PI * 2;
+  const speed = 0.3 + Math.random() * 0.8;
+  return {
+    x, y, w: 18, h: 18,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    skin: NPC_SKIN_TONES[Math.floor(Math.random() * NPC_SKIN_TONES.length)],
+    shirt: NPC_SHIRT_COLORS[Math.floor(Math.random() * NPC_SHIRT_COLORS.length)],
+    pants: NPC_PANT_COLORS[Math.floor(Math.random() * NPC_PANT_COLORS.length)],
+    hairColor: ['#1a0a00','#3b1f00','#6b3a2a','#c8a070','#e8d5b0','#888'][Math.floor(Math.random()*6)],
+    itemType: ['suitcase','backpack','shopping','handbag','none','none'][Math.floor(Math.random()*6)],
+    itemColor: ['#e74c3c','#3498db','#f39c12','#9b59b6','#1abc9c','#e67e22','#ecf0f1','#c0392b'][Math.floor(Math.random()*8)],
+    hit: false,
+    hitTimer: 0,
+    angle: angle,
+    bobTimer: Math.random() * Math.PI * 2,
+    waitTimer: 0,
+    legTimer: Math.random() * Math.PI * 2,
+  };
+}
+
+// Luggage & obstacles (benches, carts)
+const decor = [];
+function buildDecor() {
+  // Benches along main corridor
+  for (let i = 1; i < 8; i++) {
+    decor.push({ type: 'bench', x: i * 5 * TILE, y: 4 * TILE + 5, w: 60, h: 20, color: '#556' });
+    decor.push({ type: 'bench', x: i * 5 * TILE, y: 14 * TILE - 25, w: 60, h: 20, color: '#556' });
+  }
+  // Signs
+  for (let i = 0; i < 4; i++) {
+    decor.push({ type: 'sign', x: (5 + i*9) * TILE + 20, y: 6 * TILE, label: `GATE ${String.fromCharCode(65+i)}` });
+  }
+}
+buildDecor();
+
+// Hit texts
+let hitTexts = [];
+
+// Particles
+let particles = [];
+
+function addHitText(x, y, text, color) {
+  const el = document.createElement('div');
+  el.className = 'hit-text';
+  el.textContent = text;
+  el.style.left = (x - camX + 0) + 'px';
+  el.style.top = (y - camY - 20) + 'px';
+  el.style.fontSize = (24 + combo * 4) + 'px';
+  el.style.color = color || '#ffdc00';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 900);
+}
+
+function addParticles(x, y) {
+  for (let i = 0; i < 12; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const spd = 2 + Math.random() * 5;
+    particles.push({
+      x, y,
+      vx: Math.cos(angle) * spd,
+      vy: Math.sin(angle) * spd,
+      life: 1, decay: 0.04 + Math.random() * 0.03,
+      r: 3 + Math.random() * 4,
+      color: ['#ffdc00','#ff4444','#fff','#ff9a00'][Math.floor(Math.random()*4)]
+    });
+  }
+}
+
+function startGame() {
+  score = 0;
+  combo = 1;
+  comboTimer = 0;
+  timeLeft = 60;
+  cart.x = 8 * TILE; cart.y = 8 * TILE;
+  cart.vx = 0; cart.vy = -1; cart.speed = 0; cart.angle = -Math.PI / 2;
+  npcs = [];
+  particles = [];
+  for (let i = 0; i < 35; i++) npcs.push(spawnNPC());
+
+  document.getElementById('overlay').style.display = 'none';
+  document.getElementById('startPanel').style.display = 'flex';
+  document.getElementById('gameOverPanel').style.display = 'none';
+  gameRunning = true;
+
+  if (animId) cancelAnimationFrame(animId);
+  lastTime = performance.now();
+  gameLoop();
+}
+
+let lastTime = 0;
+let timerAcc = 0;
+let comboAcc = 0;
+let npcSpawnAcc = 0;
+
+function gameLoop() {
+  const now = performance.now();
+  const dt = Math.min((now - lastTime) / 16.67, 3);
+  lastTime = now;
+
+  if (!gameRunning) return;
+  update(dt);
+  draw();
+  animId = requestAnimationFrame(gameLoop);
+}
+
+function update(dt) {
+  // Timer
+  timerAcc += dt;
+  if (timerAcc >= 60) {
+    timerAcc = 0;
+    timeLeft--;
+    document.getElementById('timerDisplay').textContent = timeLeft;
+    if (timeLeft <= 0) { endGame(); return; }
+  }
+
+  // Combo decay
+  comboAcc += dt;
+  if (comboAcc >= 120) { // ~2 seconds
+    comboAcc = 0;
+    if (combo > 1) { combo = Math.max(1, combo - 1); updateComboUI(); }
+    if (combo <= 1) { document.getElementById('comboPanel').style.opacity = '0'; }
+  }
+
+  // Spawn NPCs
+  npcSpawnAcc += dt;
+  if (npcSpawnAcc > 90 && npcs.filter(n => !n.hit).length < 40) {
+    npcSpawnAcc = 0;
+    npcs.push(spawnNPC());
+  }
+
+  // Direct top-down movement
+  const acc = 0.35 * dt;
+  const friction = 0.82;
+  const maxSpeed = 7;
+
+  if (isUp())    cart.vy = Math.max(cart.vy - acc, -maxSpeed);
+  if (isDown())  cart.vy = Math.min(cart.vy + acc,  maxSpeed);
+  if (isLeft())  cart.vx = Math.max(cart.vx - acc, -maxSpeed);
+  if (isRight()) cart.vx = Math.min(cart.vx + acc,  maxSpeed);
+
+  if (!isUp() && !isDown())  cart.vy *= Math.pow(friction, dt);
+  if (!isLeft() && !isRight()) cart.vx *= Math.pow(friction, dt);
+
+  // Update angle to face movement direction
+  const spd2 = Math.sqrt(cart.vx * cart.vx + cart.vy * cart.vy);
+  if (spd2 > 0.3) cart.angle = Math.atan2(cart.vy, cart.vx);
+  cart.speed = spd2;
+
+  // Move
+  const nx = cart.x + cart.vx * dt;
+  const ny = cart.y + cart.vy * dt;
+
+  const hw = cart.w / 2, hh = cart.h / 2;
+  if (isRectWalkable(nx - hw, cart.y - hh, cart.w, cart.h)) {
+    cart.x = nx;
+  } else {
+    cart.vx *= -0.3;
+  }
+  if (isRectWalkable(cart.x - hw, ny - hh, cart.w, cart.h)) {
+    cart.y = ny;
+  } else {
+    cart.vy *= -0.3;
+  }
+
+  // Camera
+  const targetCamX = cart.x - W / 2;
+  const targetCamY = cart.y - H / 2;
+  const mapPixW = MAP_W * TILE;
+  const mapPixH = MAP_H * TILE;
+  camX += (targetCamX - camX) * 0.12 * dt;
+  camY += (targetCamY - camY) * 0.12 * dt;
+  camX = Math.max(0, Math.min(camX, mapPixW - W));
+  camY = Math.max(0, Math.min(camY, mapPixH - H));
+
+  // NPC update
+  for (const npc of npcs) {
+    if (npc.hit) {
+      npc.hitTimer += dt;
+      npc.x += npc.vx * 3 * dt;
+      npc.y += npc.vy * 3 * dt;
+      npc.vx *= 0.85;
+      npc.vy *= 0.85;
+      continue;
+    }
+
+    npc.bobTimer += 0.05 * dt;
+
+    if (npc.waitTimer > 0) {
+      npc.waitTimer -= dt;
+    } else {
+      const nx2 = npc.x + npc.vx * dt;
+      const ny2 = npc.y + npc.vy * dt;
+      if (isWalkable(nx2, ny2)) {
+        npc.x = nx2;
+        npc.y = ny2;
+      } else {
+        // bounce
+        npc.angle = Math.random() * Math.PI * 2;
+        const spd = 0.3 + Math.random() * 0.8;
+        npc.vx = Math.cos(npc.angle) * spd;
+        npc.vy = Math.sin(npc.angle) * spd;
+        npc.waitTimer = 30 + Math.random() * 60;
+      }
+      // random direction change
+      if (Math.random() < 0.002 * dt) {
+        npc.angle = Math.random() * Math.PI * 2;
+        const spd = 0.3 + Math.random() * 0.8;
+        npc.vx = Math.cos(npc.angle) * spd;
+        npc.vy = Math.sin(npc.angle) * spd;
+      }
+    }
+
+    // Collision with cart
+    if (cart.speed > 1.5) {
+      const dx = npc.x - cart.x;
+      const dy = npc.y - cart.y;
+      // Rotate to cart's local space
+      const lx = dx * Math.cos(-cart.angle) - dy * Math.sin(-cart.angle);
+      const ly = dx * Math.sin(-cart.angle) + dy * Math.cos(-cart.angle);
+      if (Math.abs(lx) < cart.w / 2 + npc.w / 2 &&
+          Math.abs(ly) < cart.h / 2 + npc.h / 2) {
+        // HIT!
+        npc.hit = true;
+        npc.hitTimer = 0;
+        npc.vx = Math.cos(cart.angle) * Math.abs(cart.speed) * 0.8 + (Math.random()-0.5);
+        npc.vy = Math.sin(cart.angle) * Math.abs(cart.speed) * 0.8 + (Math.random()-0.5);
+
+        const pts = 100 * combo;
+        score += pts;
+        combo = Math.min(combo + 1, 10);
+        comboAcc = 0;
+        document.getElementById('scoreDisplay').textContent = score;
+        updateComboUI();
+        document.getElementById('comboPanel').style.opacity = '1';
+
+        addParticles(npc.x, npc.y);
+        addHitText(npc.x, npc.y, `+${pts}`, combo >= 5 ? '#ff4444' : '#ffdc00');
+        if (combo > 1) {
+          setTimeout(() => addHitText(npc.x, npc.y + 30, `x${combo} COMBO!`, '#ff9a00'), 100);
+        }
+        const react = REACTIONS[Math.floor(Math.random() * REACTIONS.length)];
+        setTimeout(() => addHitText(npc.x, npc.y - 30, react, '#fff'), 200);
+      }
+    }
+  }
+
+  // Remove old NPCs
+  npcs = npcs.filter(n => !(n.hit && n.hitTimer > 180));
+
+  // Particles
+  for (const p of particles) {
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vy += 0.15 * dt;
+    p.life -= p.decay * dt;
+  }
+  particles = particles.filter(p => p.life > 0);
+}
+
+function updateComboUI() {
+  const el = document.getElementById('comboDisplay');
+  el.textContent = `x${combo}`;
+  el.style.transform = 'scale(1.3)';
+  el.style.color = combo >= 5 ? '#ff4444' : combo >= 3 ? '#ff9a00' : '#ff4444';
+  setTimeout(() => el.style.transform = 'scale(1)', 100);
+}
+
+function endGame() {
+  gameRunning = false;
+  if (score > highScore) highScore = score;
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('highScore').textContent = highScore;
+  document.getElementById('overlay').style.display = 'flex';
+  document.getElementById('startPanel').style.display = 'none';
+  document.getElementById('gameOverPanel').style.display = 'block';
+}
+
+// Drawing
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  ctx.save();
+  ctx.translate(-camX, -camY);
+
+  drawMap();
+  drawDecor();
+  drawParticles();
+  drawNPCs();
+  drawCart();
+
+  ctx.restore();
+
+  // Speed indicator (screen-space HUD)
+  drawSpeedometer();
+}
+
+function drawMap() {
+  for (let ty = 0; ty < MAP_H; ty++) {
+    for (let tx = 0; tx < MAP_W; tx++) {
+      const px = tx * TILE;
+      const py = ty * TILE;
+      if (!isInView(px, py, TILE, TILE)) continue;
+
+      if (tileMap[ty][tx]) {
+        // Floor tiles
+        ctx.fillStyle = '#1a1a2e';
+        ctx.fillRect(px, py, TILE, TILE);
+        // Tile pattern
+        ctx.fillStyle = '#1e1e35';
+        ctx.fillRect(px + 1, py + 1, TILE - 2, TILE - 2);
+        // Center dot
+        ctx.fillStyle = '#22223a';
+        ctx.fillRect(px + TILE/2 - 2, py + TILE/2 - 2, 4, 4);
+      } else {
+        // Wall
+        ctx.fillStyle = '#0d0d1a';
+        ctx.fillRect(px, py, TILE, TILE);
+        // Wall texture
+        ctx.fillStyle = '#0f0f20';
+        for (let i = 0; i < 3; i++) {
+          ctx.fillRect(px + 4, py + 10 + i * 25, TILE - 8, 12);
+        }
+      }
+    }
+  }
+
+  // Yellow centerline stripes
+  ctx.setLineDash([30, 20]);
+  ctx.strokeStyle = 'rgba(255,220,0,0.15)';
+  ctx.lineWidth = 2;
+  // Main corridor centerline
+  ctx.beginPath();
+  ctx.moveTo(0, 9 * TILE);
+  ctx.lineTo(MAP_W * TILE, 9 * TILE);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Gate labels on floors
+  const gateColors = ['#ff6b6b55','#6bffb855','#6b9fff55','#ffb86b55'];
+  const gateX = [5, 16, 28];
+  for (let i = 0; i < 3; i++) {
+    ctx.fillStyle = gateColors[i];
+    ctx.fillRect(gateX[i] * TILE, 0, 6 * TILE, 4 * TILE);
+    ctx.fillRect(gateX[i] * TILE, 14 * TILE, 6 * TILE, 4 * TILE);
+  }
+}
+
+function drawDecor() {
+  for (const d of decor) {
+    if (!isInView(d.x, d.y, d.w || 80, d.h || 20)) continue;
+    if (d.type === 'bench') {
+      ctx.fillStyle = '#2a2a44';
+      ctx.fillRect(d.x, d.y, d.w, d.h);
+      ctx.fillStyle = '#333355';
+      ctx.fillRect(d.x + 4, d.y + 3, d.w - 8, d.h - 6);
+    } else if (d.type === 'sign') {
+      ctx.fillStyle = 'rgba(255,220,0,0.9)';
+      ctx.fillRect(d.x, d.y, 100, 22);
+      ctx.fillStyle = '#000';
+      ctx.font = 'bold 12px Space Mono, monospace';
+      ctx.fillText(d.label, d.x + 8, d.y + 15);
+    }
+  }
+}
+
+function drawNPCs() {
+  for (const npc of npcs) {
+    if (!isInView(npc.x - 24, npc.y - 24, 48, 48)) continue;
+    ctx.save();
+    ctx.translate(npc.x, npc.y);
+
+    if (npc.hit) {
+      const t = npc.hitTimer / 60;
+      ctx.rotate(t * 6);
+      ctx.globalAlpha = Math.max(0, 1 - t * 0.45);
+      drawPersonFlat(npc);
+    } else {
+      npc.legTimer += 0.12;
+      ctx.rotate(npc.angle + Math.PI / 2);
+      drawPersonWalking(npc);
+    }
+
+    ctx.restore();
+  }
+}
+
+function drawPersonWalking(npc) {
+  const bob = Math.sin(npc.bobTimer) * 1.5;
+  const legSwing = Math.sin(npc.legTimer) * 4;
+
+  // === LEGS (behind torso) ===
+  ctx.fillStyle = npc.pants;
+  // Left leg
+  ctx.beginPath();
+  ctx.ellipse(-3, 6 + legSwing * 0.5, 3, 5, 0.1, 0, Math.PI*2);
+  ctx.fill();
+  // Right leg
+  ctx.beginPath();
+  ctx.ellipse(3, 6 - legSwing * 0.5, 3, 5, -0.1, 0, Math.PI*2);
+  ctx.fill();
+  // Shoes
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.ellipse(-3.5, 11 + legSwing*0.4, 2.5, 2, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(3.5, 11 - legSwing*0.4, 2.5, 2, 0, 0, Math.PI*2); ctx.fill();
+
+  // === TORSO ===
+  ctx.fillStyle = npc.shirt;
+  ctx.beginPath();
+  ctx.roundRect(-5.5, -4 + bob, 11, 12, 2);
+  ctx.fill();
+  // Collar
+  ctx.fillStyle = lighten(npc.shirt, 30);
+  ctx.beginPath();
+  ctx.moveTo(-2, -4 + bob); ctx.lineTo(0, -1 + bob); ctx.lineTo(2, -4 + bob);
+  ctx.closePath(); ctx.fill();
+
+  // === ARMS ===
+  ctx.fillStyle = npc.skin;
+  // Left arm (swings opposite to right leg)
+  if (npc.itemType === 'none' || npc.itemType === 'backpack') {
+    ctx.beginPath();
+    ctx.ellipse(-7, 1 - legSwing * 0.3 + bob, 2.5, 4, 0.3, 0, Math.PI*2);
+    ctx.fill();
+  }
+  // Right arm
+  if (npc.itemType === 'none' || npc.itemType === 'backpack' || npc.itemType === 'suitcase') {
+    ctx.beginPath();
+    ctx.ellipse(7, 1 + legSwing * 0.3 + bob, 2.5, 4, -0.3, 0, Math.PI*2);
+    ctx.fill();
+  }
+
+  // === ITEM ===
+  drawItem(npc, bob, legSwing);
+
+  // === HEAD ===
+  ctx.fillStyle = npc.skin;
+  ctx.beginPath();
+  ctx.arc(0, -10 + bob, 6, 0, Math.PI * 2);
+  ctx.fill();
+  // Hair (top half of head)
+  ctx.fillStyle = npc.hairColor;
+  ctx.beginPath();
+  ctx.arc(0, -11 + bob, 5.5, Math.PI, Math.PI*2);
+  ctx.fill();
+  // Face: two tiny eyes
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.arc(-2, -10 + bob, 1, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(2, -10 + bob, 1, 0, Math.PI*2); ctx.fill();
+  // Tiny smile
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 0.8;
+  ctx.beginPath();
+  ctx.arc(0, -9 + bob, 2, 0.1, Math.PI - 0.1);
+  ctx.stroke();
+}
+
+function drawItem(npc, bob, legSwing) {
+  const c = npc.itemColor;
+  const b = bob || 0;
+
+  if (npc.itemType === 'suitcase') {
+    // Wheeled suitcase dragged in right hand — slightly behind
+    const sx = 10, sy = 5 + b;
+    // Handle strap line from hand to suitcase
+    ctx.strokeStyle = '#888';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(7, 1 + b); ctx.lineTo(sx, sy + 2); ctx.stroke();
+    // Suitcase body
+    ctx.fillStyle = c;
+    ctx.beginPath(); ctx.roundRect(sx - 4, sy - 3, 9, 11, 2); ctx.fill();
+    // Suitcase detail: stripe
+    ctx.fillStyle = lighten(c, 30);
+    ctx.fillRect(sx - 4, sy + 1, 9, 2);
+    // Handle bar on top
+    ctx.strokeStyle = '#aaa'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(sx - 2, sy - 3); ctx.lineTo(sx + 3, sy - 3); ctx.stroke();
+    // Wheels
+    ctx.fillStyle = '#222';
+    ctx.beginPath(); ctx.ellipse(sx - 2, sy + 8, 1.5, 1, 0, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(sx + 3, sy + 8, 1.5, 1, 0, 0, Math.PI*2); ctx.fill();
+
+  } else if (npc.itemType === 'backpack') {
+    // Backpack on back (appears centered, slightly behind torso visually)
+    ctx.fillStyle = c;
+    ctx.beginPath(); ctx.roundRect(-4.5, -2 + b, 9, 10, 3); ctx.fill();
+    // Pocket
+    ctx.fillStyle = lighten(c, -20);
+    ctx.beginPath(); ctx.roundRect(-3, 3 + b, 6, 4, 1); ctx.fill();
+    // Straps
+    ctx.strokeStyle = lighten(c, 20); ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(-3, -2 + b); ctx.quadraticCurveTo(-7, 1 + b, -4, 6 + b); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(3, -2 + b); ctx.quadraticCurveTo(7, 1 + b, 4, 6 + b); ctx.stroke();
+
+  } else if (npc.itemType === 'shopping') {
+    // Shopping bag in left hand
+    const sx = -10, sy = 2 + b;
+    // Arm holding bag
+    ctx.fillStyle = npc.skin;
+    ctx.beginPath(); ctx.ellipse(-7, 1 + b, 2.5, 4, 0.3, 0, Math.PI*2); ctx.fill();
+    // Bag body
+    ctx.fillStyle = c;
+    ctx.beginPath(); ctx.roundRect(sx - 4, sy, 10, 10, 1); ctx.fill();
+    // Bag top fold
+    ctx.fillStyle = lighten(c, 20);
+    ctx.fillRect(sx - 4, sy, 10, 2);
+    // Handles (two arcs)
+    ctx.strokeStyle = lighten(c, -30); ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.arc(sx, sy, 3, Math.PI, 0); ctx.stroke();
+    ctx.beginPath(); ctx.arc(sx + 4, sy, 3, Math.PI, 0); ctx.stroke();
+    // Brand stripe or pattern
+    ctx.fillStyle = 'rgba(255,255,255,0.25)';
+    ctx.fillRect(sx - 1, sy + 3, 6, 4);
+  }
+  // 'handbag' and 'none' get nothing extra (or handbag could be added later)
+}
+
+function drawPersonFlat(npc) {
+  // Sprawled on ground
+  ctx.fillStyle = npc.shirt;
+  ctx.beginPath(); ctx.ellipse(0, 0, 13, 6, 0, 0, Math.PI*2); ctx.fill();
+  // Head
+  ctx.fillStyle = npc.skin;
+  ctx.beginPath(); ctx.arc(14, 0, 6, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = npc.hairColor;
+  ctx.beginPath(); ctx.arc(14, 0, 5, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = npc.skin;
+  ctx.beginPath(); ctx.arc(14, 1.5, 4, 0, Math.PI); ctx.fill();
+  // Legs
+  ctx.fillStyle = npc.pants;
+  ctx.beginPath(); ctx.ellipse(-12, -5, 5, 3, -0.4, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-12, 5, 5, 3, 0.4, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#222';
+  ctx.beginPath(); ctx.ellipse(-17, -5, 3.5, 2, -0.4, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-17, 5, 3.5, 2, 0.4, 0, Math.PI*2); ctx.fill();
+  // Arms out
+  ctx.fillStyle = npc.skin;
+  ctx.beginPath(); ctx.ellipse(4, -10, 3, 5, 0.5, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(4, 10, 3, 5, -0.5, 0, Math.PI*2); ctx.fill();
+
+  // Scattered item
+  if (npc.itemType === 'suitcase') {
+    ctx.save(); ctx.translate(-6, -16); ctx.rotate(0.7);
+    ctx.fillStyle = npc.itemColor;
+    ctx.beginPath(); ctx.roundRect(-5, -4, 10, 13, 2); ctx.fill();
+    ctx.fillStyle = lighten(npc.itemColor, 30);
+    ctx.fillRect(-5, 1, 10, 2);
+    ctx.restore();
+  } else if (npc.itemType === 'backpack') {
+    ctx.save(); ctx.translate(-4, -17); ctx.rotate(-0.5);
+    ctx.fillStyle = npc.itemColor;
+    ctx.beginPath(); ctx.roundRect(-5, -5, 10, 12, 3); ctx.fill();
+    ctx.restore();
+  } else if (npc.itemType === 'shopping') {
+    ctx.save(); ctx.translate(2, -18); ctx.rotate(1.2);
+    ctx.fillStyle = npc.itemColor;
+    ctx.beginPath(); ctx.roundRect(-4, -2, 9, 10, 1); ctx.fill();
+    ctx.fillStyle = lighten(npc.itemColor, 20);
+    ctx.fillRect(-4, -2, 9, 2);
+    ctx.restore();
+  }
+
+  ctx.font = '10px serif';
+  ctx.fillText('💫', 8, -15);
+}
+
+function lighten(hex, amt) {
+  let r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+  r = Math.min(255, r+amt); g = Math.min(255, g+amt); b = Math.min(255, b+amt);
+  return `rgb(${r},${g},${b})`;
+}
+
+function drawCart() {
+  ctx.save();
+  ctx.translate(cart.x, cart.y);
+  ctx.rotate(cart.angle);
+
+  const spd = cart.speed;
+  // forward is +X after rotation
+
+  // --- Shadow ---
+  ctx.save();
+  ctx.translate(4, 4);
+  ctx.fillStyle = 'rgba(0,0,0,0.35)';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, 32, 18, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+
+  // === WHEELS (4 corners, drawn first so body sits on top) ===
+  // Wheel: dark rubber ring + grey hub
+  const wheels = [
+    { x: 18, y: -14 }, // front-right
+    { x: 18, y:  14 }, // front-left
+    { x:-18, y: -14 }, // rear-right
+    { x:-18, y:  14 }, // rear-left
+  ];
+  wheels.forEach(w => {
+    ctx.save();
+    ctx.translate(w.x, w.y);
+    // Tyre
+    ctx.fillStyle = '#1a1a1a';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 7, 5, 0, 0, Math.PI*2);
+    ctx.fill();
+    // Hub
+    ctx.fillStyle = '#888';
+    ctx.beginPath();
+    ctx.arc(0, 0, 2.5, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  });
+
+  // === CHASSIS / BODY FLOOR ===
+  ctx.fillStyle = '#c8a800';
+  ctx.beginPath();
+  ctx.roundRect(-22, -12, 44, 24, 4);
+  ctx.fill();
+
+  // === REAR CARGO BED (back half) ===
+  ctx.fillStyle = '#b89600';
+  ctx.beginPath();
+  ctx.roundRect(-22, -11, 18, 22, 3);
+  ctx.fill();
+  // Cargo slats
+  ctx.strokeStyle = '#a08000';
+  ctx.lineWidth = 1;
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(-18 + i * 5, -9);
+    ctx.lineTo(-18 + i * 5, 9);
+    ctx.stroke();
+  }
+
+  // === SEAT (rear, two bucket seats) ===
+  // Left seat
+  ctx.fillStyle = '#1a1a2e';
+  ctx.beginPath(); ctx.roundRect(-4, -10, 10, 8, 2); ctx.fill();
+  ctx.fillStyle = '#2a2a4e';
+  ctx.beginPath(); ctx.roundRect(-3, -9, 8, 6, 1); ctx.fill();
+  // Right seat
+  ctx.fillStyle = '#1a1a2e';
+  ctx.beginPath(); ctx.roundRect(-4, 2, 10, 8, 2); ctx.fill();
+  ctx.fillStyle = '#2a2a4e';
+  ctx.beginPath(); ctx.roundRect(-3, 3, 8, 6, 1); ctx.fill();
+
+  // === ROOF / CANOPY (top-down silhouette as flat rectangle with rounded ends) ===
+  ctx.fillStyle = 'rgba(255,220,0,0.18)';
+  ctx.strokeStyle = '#ffdc00';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(-2, -11, 20, 22, 5);
+  ctx.fill();
+  ctx.stroke();
+
+  // Canopy support pillars (front & back)
+  ctx.fillStyle = '#e6c000';
+  ctx.fillRect(14, -11, 3, 4);
+  ctx.fillRect(14,   7, 3, 4);
+  ctx.fillRect(-2, -11, 3, 4);
+  ctx.fillRect(-2,   7, 3, 4);
+
+  // === FRONT DASHBOARD / BODY ===
+  ctx.fillStyle = '#ffdc00';
+  ctx.beginPath();
+  ctx.roundRect(4, -11, 18, 22, [0, 6, 6, 0]);
+  ctx.fill();
+
+  // Dashboard detail
+  ctx.fillStyle = '#cc9900';
+  ctx.beginPath();
+  ctx.roundRect(14, -8, 6, 16, 2);
+  ctx.fill();
+
+  // Steering wheel (top-down: small circle)
+  ctx.fillStyle = '#333';
+  ctx.beginPath(); ctx.arc(8, 0, 4, 0, Math.PI*2); ctx.fill();
+  ctx.strokeStyle = '#555';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(8, 0, 4, 0, Math.PI*2); ctx.stroke();
+  // Steering column
+  ctx.strokeStyle = '#444';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(8, -3); ctx.lineTo(8, 3); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(5, 0);  ctx.lineTo(11, 0); ctx.stroke();
+
+  // === HEADLIGHTS (front) ===
+  const headOn = spd > 0.5;
+  ctx.fillStyle = headOn ? '#fffde0' : '#998800';
+  ctx.shadowColor = headOn ? '#ffff88' : 'transparent';
+  ctx.shadowBlur = headOn ? 8 : 0;
+  ctx.beginPath(); ctx.ellipse(22, -7, 4, 3, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(22,  7, 4, 3, 0, 0, Math.PI*2); ctx.fill();
+  ctx.shadowBlur = 0;
+
+  // === BRAKE / REAR LIGHTS ===
+  ctx.fillStyle = spd < 0.5 ? '#ff4444' : '#660000';
+  ctx.beginPath(); ctx.ellipse(-22, -8, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(-22,  8, 3, 2, 0, 0, Math.PI*2); ctx.fill();
+
+  // Exhaust puff (rear)
+  if (spd > 1) {
+    for (let i = 0; i < 2; i++) {
+      ctx.fillStyle = `rgba(180,180,180,${0.25 * Math.random()})`;
+      const ex = -22 - Math.random() * 10;
+      const ey = (Math.random() - 0.5) * 10;
+      ctx.beginPath();
+      ctx.arc(ex, ey, 3 + Math.random() * 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Speed lines
+  if (spd > 3) {
+    ctx.strokeStyle = 'rgba(255,220,0,0.35)';
+    ctx.lineWidth = 1.2;
+    for (let i = 0; i < 4; i++) {
+      const len = (spd - 3) * 9;
+      const sy2 = -9 + i * 6;
+      ctx.beginPath();
+      ctx.moveTo(-22, sy2);
+      ctx.lineTo(-22 - len, sy2);
+      ctx.stroke();
+    }
+  }
+
+  ctx.restore();
+}
+
+function drawParticles() {
+  for (const p of particles) {
+    ctx.save();
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawSpeedometer() {
+  const spd = Math.abs(cart.speed);
+  const maxSpd = 7;
+  const x = W - 80, y = H - 60;
+  const bars = 8;
+  for (let i = 0; i < bars; i++) {
+    const filled = (spd / maxSpd) * bars > i;
+    ctx.fillStyle = filled
+      ? (i > 5 ? '#ff4444' : i > 3 ? '#ff9a00' : '#ffdc00')
+      : 'rgba(255,255,255,0.1)';
+    ctx.fillRect(x + i * 8, y - i * 3, 6, 20 + i * 3);
+  }
+  ctx.fillStyle = 'rgba(255,255,255,0.4)';
+  ctx.font = '9px Space Mono, monospace';
+  ctx.fillText('SPEED', x, y + 28);
+}
+
+function isInView(px, py, pw, ph) {
+  return px + pw > camX && px < camX + W &&
+         py + ph > camY && py < camY + H;
+}
+
+// Initial draw
+draw();
+</script>
+</body>
+</html>
