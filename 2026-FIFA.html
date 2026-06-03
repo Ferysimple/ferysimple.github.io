@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏆 2026 FIFA 世界盃 — 賽程表 & 實力評分</title>
+<style>
+  :root {
+    --navy: #003087;
+    --blue: #0055A4;
+    --gold: #FFD700;
+    --light-blue: #e8f0fe;
+    --white: #ffffff;
+    --gray: #f4f6f9;
+    --text: #1a1a2e;
+    --muted: #666;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0a0e27;
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #001f5b 0%, #003087 50%, #001433 100%);
+    padding: 40px 20px 30px;
+    text-align: center;
+    border-bottom: 3px solid var(--gold);
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(255,215,0,0.12) 0%, transparent 70%);
+  }
+  .hero-trophy { font-size: 56px; margin-bottom: 8px; }
+  .hero h1 {
+    font-size: clamp(22px, 4vw, 38px);
+    color: var(--gold);
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-shadow: 0 2px 12px rgba(255,215,0,0.4);
+  }
+  .hero-sub {
+    color: rgba(255,255,255,0.75);
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  .hero-stats {
+    display: flex; justify-content: center; gap: 30px;
+    margin-top: 20px; flex-wrap: wrap;
+  }
+  .hero-stat {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,215,0,0.3);
+    border-radius: 12px;
+    padding: 10px 20px;
+    color: white;
+    font-size: 13px;
+  }
+  .hero-stat span { color: var(--gold); font-size: 22px; font-weight: 700; display: block; }
+
+  /* NAV TABS */
+  .tabs {
+    display: flex; justify-content: center; gap: 6px;
+    background: #111630; padding: 14px 20px;
+    position: sticky; top: 0; z-index: 100;
+    border-bottom: 1px solid rgba(255,215,0,0.2);
+    flex-wrap: wrap;
+  }
+  .tab {
+    padding: 8px 18px; border-radius: 20px; border: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; transition: all 0.2s;
+    background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.7);
+  }
+  .tab:hover { background: rgba(255,215,0,0.15); color: var(--gold); }
+  .tab.active { background: var(--gold); color: #001433; }
+
+  /* SECTIONS */
+  .section { display: none; padding: 28px 16px; max-width: 1200px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  .section-title {
+    font-size: 22px; font-weight: 700; color: var(--gold);
+    margin-bottom: 6px; display: flex; align-items: center; gap: 10px;
+  }
+  .section-desc {
+    color: rgba(255,255,255,0.55); font-size: 13px; margin-bottom: 20px;
+  }
+
+  /* GROUP GRID */
+  .groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 16px;
+  }
+  .group-card {
+    background: #141830;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .group-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+  .group-header {
+    background: linear-gradient(90deg, var(--navy), var(--blue));
+    padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .group-label { font-size: 18px; font-weight: 800; color: var(--gold); }
+  .group-conf { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .team-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .team-row:last-child { border-bottom: none; }
+  .team-flag { font-size: 22px; width: 30px; text-align: center; }
+  .team-info { flex: 1; min-width: 0; }
+  .team-name { font-size: 13px; font-weight: 600; color: white; }
+  .team-note { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .score-badge {
+    font-size: 18px; font-weight: 800; min-width: 42px; text-align: center;
+    padding: 4px 8px; border-radius: 8px;
+  }
+  .score-s5 { color: #22c55e; background: rgba(34,197,94,0.12); }
+  .score-s4 { color: #86efac; background: rgba(134,239,172,0.1); }
+  .score-s3 { color: #fbbf24; background: rgba(251,191,36,0.1); }
+  .score-s2 { color: #fb923c; background: rgba(251,146,60,0.1); }
+  .score-s1 { color: #f87171; background: rgba(248,113,113,0.1); }
+
+  /* RANKINGS TABLE */
+  .rankings-table {
+    width: 100%; border-collapse: collapse;
+    background: #141830; border-radius: 14px; overflow: hidden;
+  }
+  .rankings-table th {
+    background: linear-gradient(90deg, var(--navy), var(--blue));
+    color: var(--gold); font-size: 12px; padding: 12px 14px;
+    text-align: left; font-weight: 700; white-space: nowrap;
+  }
+  .rankings-table td {
+    padding: 11px 14px; font-size: 13px; color: white;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .rankings-table tr:last-child td { border-bottom: none; }
+  .rankings-table tr:hover td { background: rgba(255,215,0,0.04); }
+  .rank-num { font-weight: 800; font-size: 16px; color: var(--muted); }
+  .rank-1 { color: var(--gold); }
+  .rank-2 { color: #C0C0C0; }
+  .rank-3 { color: #CD7F32; }
+  .odds-chip {
+    background: rgba(34,197,94,0.15); color: #22c55e;
+    border: 1px solid rgba(34,197,94,0.3);
+    padding: 3px 9px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* SCORE BAR */
+  .score-bar-wrap { display: flex; align-items: center; gap: 8px; min-width: 120px; }
+  .score-bar-bg { flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; }
+  .score-bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+
+  /* FIXTURES */
+  .fixture-group { margin-bottom: 24px; }
+  .fixture-group-title {
+    font-size: 15px; font-weight: 700; color: var(--gold);
+    background: rgba(255,215,0,0.08); border-left: 3px solid var(--gold);
+    padding: 8px 14px; border-radius: 0 8px 8px 0;
+    margin-bottom: 10px;
+  }
+  .fixture-list { display: flex; flex-direction: column; gap: 6px; }
+  .fixture {
+    background: #141830; border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 10px 14px;
+    display: grid; grid-template-columns: 36px 1fr auto 1fr auto;
+    align-items: center; gap: 8px;
+    transition: background 0.15s;
+  }
+  .fixture:hover { background: #1c2240; }
+  .fixture-date { font-size: 11px; color: var(--muted); text-align: center; }
+  .fixture-team { font-size: 13px; font-weight: 600; color: white; }
+  .fixture-home { text-align: right; }
+  .fixture-away { text-align: left; }
+  .fixture-vs {
+    background: rgba(255,255,255,0.07); border-radius: 6px;
+    padding: 4px 10px; font-size: 11px; color: var(--muted); text-align: center;
+    white-space: nowrap;
+  }
+  .fixture-venue { font-size: 10px; color: var(--muted); text-align: right; white-space: nowrap; }
+
+  /* KNOCKOUT */
+  .knockout-round { margin-bottom: 28px; }
+  .knockout-round-title {
+    font-size: 16px; font-weight: 800; color: white;
+    background: linear-gradient(90deg, var(--navy), transparent);
+    padding: 10px 18px; border-radius: 8px; margin-bottom: 12px;
+    border-left: 4px solid var(--gold);
+  }
+  .knockout-round-title.final-title {
+    background: linear-gradient(90deg, #7a5c00, #c49800, transparent);
+    border-color: var(--gold); color: var(--gold); font-size: 18px;
+  }
+  .knockout-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 8px;
+  }
+  .knockout-match {
+    background: #141830; border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 12px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px;
+  }
+  .knockout-match.final-match {
+    background: linear-gradient(135deg, #2a1f00, #1a1300);
+    border-color: rgba(255,215,0,0.4);
+  }
+  .knockout-date { font-size: 11px; color: var(--muted); min-width: 70px; }
+  .knockout-teams { color: white; font-weight: 600; flex: 1; padding: 0 10px; }
+  .knockout-venue { font-size: 11px; color: var(--muted); text-align: right; min-width: 80px; }
+
+  /* DISCLAIMER */
+  .disclaimer {
+    background: rgba(255,200,0,0.07); border: 1px solid rgba(255,200,0,0.2);
+    border-radius: 10px; padding: 14px 18px; margin-top: 24px;
+    font-size: 12px; color: rgba(255,255,255,0.55); line-height: 1.7;
+  }
+  .disclaimer strong { color: rgba(255,200,0,0.8); }
+
+  /* LEGEND */
+  .legend {
+    display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; color: rgba(255,255,255,0.6);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .fixture { grid-template-columns: 1fr; gap: 4px; }
+    .fixture-home, .fixture-away { text-align: left; }
+    .fixture-venue { text-align: left; }
+    .rankings-table th:nth-child(5),
+    .rankings-table td:nth-child(5) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-trophy">🏆</div>
+  <h1>2026 FIFA 世界盃足球賽</h1>
+  <p class="hero-sub">完整賽程表 · 各隊實力評分 · 運動彩券參考指南</p>
+  <p class="hero-sub" style="margin-top:6px;font-size:13px;opacity:0.7">🌎 本屆首次由三國聯合主辦：美國（USA）· 加拿大（Canada）· 墨西哥（Mexico）</p>
+  <p class="hero-sub" style="margin-top:10px;font-size:13px;color:var(--gold);">✍️ 作者：<a href="https://www.facebook.com/ferysimple" target="_blank" style="color:var(--gold);text-decoration:underline;">Facebook｜霏常簡單</a></p>
+  <p class="hero-sub" style="margin-top:8px;font-size:12px;color:rgba(255,255,255,0.5);">🤖 本網頁由 AI Claude 輔助製作，資訊可能有誤，請小心查證。</p>
+  <div class="disclaimer" style="max-width:800px;margin:18px auto 0;text-align:left;">
+    <strong>⚠️ 免責聲明：</strong>本頁面所有實力評分、賠率資訊僅供參考，不構成運動彩券投注建議。賠率隨時變動，請向合法運動彩券平台確認最新資訊。購買運動彩券有風險，請理性投注，量力而為，未滿18歲請勿購買。
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><span>48</span>參賽球隊</div>
+    <div class="hero-stat"><span>104</span>場比賽</div>
+    <div class="hero-stat"><span>12</span>組別</div>
+    <div class="hero-stat"><span>06/11–07/19</span>賽期</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active" onclick="showTab('groups')">⚽ 各組實力評分</button>
+  <button class="tab" onclick="showTab('rankings')">🥇 奪冠熱門</button>
+  <button class="tab" onclick="showTab('fixtures')">📅 小組賽程</button>
+  <button class="tab" onclick="showTab('knockout')">⚔️ 淘汰賽</button>
+</div>
+
+<!-- ===== TAB 1: GROUPS ===== -->
+<div id="tab-groups" class="section active">
+  <div class="section-title">⚽ 各組實力評分</div>
+  <div class="section-desc">實力評分 1–100 分，依據國際賠率、FIFA排名及陣容深度綜合評估</div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#22c55e"></div>85+ 奪冠熱門</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#86efac"></div>70–84 強隊</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fbbf24"></div>55–69 中等</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div>40–54 弱隊</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f87171"></div>&lt;40 最弱</div>
+  </div>
+  <div class="groups-grid" id="groups-grid"></div>
+</div>
+
+<!-- ===== TAB 2: RANKINGS ===== -->
+<div id="tab-rankings" class="section">
+  <div class="section-title">🥇 奪冠熱門排行 Top 15</div>
+  <div class="section-desc">賠率參考自 FanDuel / FOX Sports（2026年5–6月），僅供參考，實際請洽合法運彩平台</div>
+  <div style="overflow-x:auto; border-radius:14px; border:1px solid rgba(255,255,255,0.07);">
+    <table class="rankings-table" id="rankings-table"></table>
+  </div>
+  <div class="disclaimer">
+    <strong>⚠️ 免責聲明：</strong>以上賠率及評分僅供參考，不構成運動彩券投注建議。賠率隨時變動，請確認當地相關法規，購買運動彩券有風險，請理性投注，量力而為。
+  </div>
+</div>
+
+<!-- ===== TAB 3: FIXTURES ===== -->
+<div id="tab-fixtures" class="section">
+  <div class="section-title">📅 小組賽程表</div>
+  <div class="section-desc">2026/06/11 – 06/27 ｜ 12組 × 6場 = 72場</div>
+  <div id="fixtures-container"></div>
+</div>
+
+<!-- ===== TAB 4: KNOCKOUT ===== -->
+<div id="tab-knockout" class="section">
+  <div class="section-title">⚔️ 淘汰賽賽程</div>
+  <div class="section-desc">2026/06/28 – 07/19 ｜ 32強 → 決賽，共32場</div>
+  <div id="knockout-container"></div>
+</div>
+
+<script>
+// ──────────────────────────────────────────
+// DATA
+// ──────────────────────────────────────────
+const groups = [
+  { label:"A", teams:[
+    { flag:"🇲🇽", name:"墨西哥", score:65, note:"主辦國優勢，老牌球隊" },
+    { flag:"🇿🇦", name:"南非", score:45, note:"體力充沛，CAF代表" },
+    { flag:"🇰🇷", name:"南韓", score:62, note:"亞洲強隊，技術紮實" },
+    { flag:"🇨🇿", name:"捷克", score:58, note:"歐洲中等，防守穩健" },
+  ]},
+  { label:"B", teams:[
+    { flag:"🇨🇦", name:"加拿大", score:60, note:"主辦國，Davies領軍" },
+    { flag:"🇧🇦", name:"波赫", score:52, note:"附加賽晉級，中等實力" },
+    { flag:"🇶🇦", name:"卡達", score:38, note:"上屆主辦，實力偏弱" },
+    { flag:"🇨🇭", name:"瑞士", score:65, note:"歐洲穩定強隊，防守出色" },
+  ]},
+  { label:"C", teams:[
+    { flag:"🇧🇷", name:"巴西", score:87, note:"安切洛蒂執教，維尼修斯領軍" },
+    { flag:"🇲🇦", name:"摩洛哥", score:72, note:"上屆四強，防守強悍" },
+    { flag:"🏴󠁧󠁢󠁳󠁣󠁴󠁿", name:"蘇格蘭", score:57, note:"歐洲中等，首次現代出線" },
+    { flag:"🇭🇹", name:"海地", score:30, note:"首次出線，實力最弱" },
+  ]},
+  { label:"D", teams:[
+    { flag:"🇺🇸", name:"美國", score:68, note:"主辦國，普利西奇+主場優勢" },
+    { flag:"🇵🇾", name:"巴拉圭", score:52, note:"南美勁旅，身體對抗強" },
+    { flag:"🇦🇺", name:"澳洲", score:60, note:"亞太強隊，Hrustic等人" },
+    { flag:"🇹🇷", name:"土耳其", score:60, note:"附加賽晉級，歐洲中等" },
+  ]},
+  { label:"E", teams:[
+    { flag:"🇩🇪", name:"德國", score:84, note:"哈弗茨領軍，強力進攻" },
+    { flag:"🇨🇼", name:"庫拉索", score:30, note:"首次出線，最大黑馬" },
+    { flag:"🇨🇷", name:"哥斯大黎加", score:50, note:"中北美老牌，擅長防守" },
+    { flag:"🇪🇨", name:"厄瓜多", score:63, note:"瓦倫西亞領銜，南美強隊" },
+  ]},
+  { label:"F", teams:[
+    { flag:"🇳🇱", name:"荷蘭", score:82, note:"范迪克+加克波，均衡強隊" },
+    { flag:"🇯🇵", name:"日本", score:72, note:"亞洲最強，久保建英" },
+    { flag:"🇹🇳", name:"突尼西亞", score:50, note:"非洲中等強隊" },
+    { flag:"🇸🇪", name:"瑞典", score:57, note:"附加賽晉級，均衡球隊" },
+  ]},
+  { label:"G", teams:[
+    { flag:"🇧🇪", name:"比利時", score:78, note:"德布勞內+盧卡庫黃金一代" },
+    { flag:"🇪🇬", name:"埃及", score:58, note:"薩拉赫領軍，非洲強隊" },
+    { flag:"🇮🇷", name:"伊朗", score:52, note:"亞洲強隊，防守體系嚴密" },
+    { flag:"🇳🇿", name:"紐西蘭", score:35, note:"大洋洲代表，實力有限" },
+  ]},
+  { label:"H", teams:[
+    { flag:"🇪🇸", name:"西班牙", score:93, note:"衛冕歐洲盃冠軍，亞馬爾等星" },
+    { flag:"🇨🇻", name:"維德角", score:40, note:"首次出線，非洲黑馬" },
+    { flag:"🇸🇦", name:"沙烏地阿拉伯", score:55, note:"亞洲強隊，曾2022爆冷阿根廷" },
+    { flag:"🇺🇾", name:"烏拉圭", score:74, note:"老牌南美勁旅，紐雷斯等" },
+  ]},
+  { label:"I", teams:[
+    { flag:"🇫🇷", name:"法國", score:92, note:"姆巴佩+格里茲曼頂級陣容" },
+    { flag:"🇸🇳", name:"塞內加爾", score:68, note:"馬內等，非洲最強之一" },
+    { flag:"🇳🇴", name:"挪威", score:68, note:"哈蘭德領軍，歐洲進攻強隊" },
+    { flag:"🇮🇶", name:"伊拉克", score:40, note:"附加賽晉級，亞洲中等" },
+  ]},
+  { label:"J", teams:[
+    { flag:"🇦🇷", name:"阿根廷", score:88, note:"衛冕冠軍，梅西率隊防衛" },
+    { flag:"🇩🇿", name:"阿爾及利亞", score:52, note:"馬赫雷斯領銜，非洲強隊" },
+    { flag:"🇦🇹", name:"奧地利", score:62, note:"歐洲中等強隊，技術流" },
+    { flag:"🇯🇴", name:"約旦", score:38, note:"首次出線，亞洲中等" },
+  ]},
+  { label:"K", teams:[
+    { flag:"🇵🇹", name:"葡萄牙", score:86, note:"C羅率領，拉菲亞等新生代" },
+    { flag:"🇨🇴", name:"哥倫比亞", score:74, note:"迪亞斯等南美強隊" },
+    { flag:"🇺🇿", name:"烏茲別克", score:42, note:"首次出線，亞洲新晉" },
+    { flag:"🇨🇩", name:"剛果民主共和國", score:42, note:"附加賽晉級，非洲中等" },
+  ]},
+  { label:"L", teams:[
+    { flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", name:"英格蘭", score:89, note:"貝林漢+凱恩頂級球星" },
+    { flag:"🇭🇷", name:"克羅埃西亞", score:70, note:"莫德里奇等，防守頑強" },
+    { flag:"🇬🇭", name:"迦納", score:48, note:"非洲勁旅，攻守均衡" },
+    { flag:"🇵🇦", name:"巴拿馬", score:40, note:"中北美代表，防守型" },
+  ]},
+];
+
+const rankings = [
+  { rank:1, flag:"🇪🇸", name:"西班牙", group:"H", score:93, odds:"+450", analysis:"衛冕歐洲盃冠軍，亞馬爾+佩德里+羅德里，整體最均衡" },
+  { rank:2, flag:"🇫🇷", name:"法國", group:"I", score:92, odds:"+480", analysis:"姆巴佩追世界盃進球紀錄，格里茲曼輔佐" },
+  { rank:3, flag:"🏴󠁧󠁢󠁥󠁮󠁧󠁿", name:"英格蘭", group:"L", score:89, odds:"+650", analysis:"貝林漢+凱恩黃金搭檔，小組最易出線" },
+  { rank:4, flag:"🇦🇷", name:"阿根廷", group:"J", score:88, odds:"+900", analysis:"梅西衛冕，若成功將是1962年來首隊" },
+  { rank:5, flag:"🇧🇷", name:"巴西", group:"C", score:87, odds:"+750", analysis:"安切洛蒂執教+維尼修斯，南美最強" },
+  { rank:6, flag:"🇵🇹", name:"葡萄牙", group:"K", score:86, odds:"+1200", analysis:"C羅最後一屆，拉菲亞等新生代加持" },
+  { rank:7, flag:"🇩🇪", name:"德國", group:"E", score:84, odds:"+1400", analysis:"哈弗茨+紐厄爾，陣容強悍" },
+  { rank:8, flag:"🇳🇱", name:"荷蘭", group:"F", score:82, odds:"+1600", analysis:"范迪克防守+加克波攻擊，均衡球隊" },
+  { rank:9, flag:"🇧🇪", name:"比利時", group:"G", score:78, odds:"+2500", analysis:"德布勞內最後大賽，黃金一代謝幕" },
+  { rank:10, flag:"🇺🇾", name:"烏拉圭", group:"H", score:74, odds:"+3000", analysis:"老牌南美勁旅，紐雷斯領軍" },
+  { rank:11, flag:"🇨🇴", name:"哥倫比亞", group:"K", score:74, odds:"+3000", analysis:"美洲盃亞軍，迪亞斯等人狀態佳" },
+  { rank:12, flag:"🇯🇵", name:"日本", group:"F", score:72, odds:"+4000", analysis:"亞洲最強，久保建英+三苫薰" },
+  { rank:13, flag:"🇲🇦", name:"摩洛哥", group:"C", score:72, odds:"+4000", analysis:"上屆四強，非洲最強" },
+  { rank:14, flag:"🇳🇴", name:"挪威", group:"I", score:68, odds:"+5000", analysis:"哈蘭德進球機器，有爆冷潛力" },
+  { rank:15, flag:"🇸🇳", name:"塞內加爾", group:"I", score:68, odds:"+6000", analysis:"非洲盃冠軍，實力不俗" },
+];
+
+const fixtures = [
+  { group:"A", matches:[
+    { date:"06/11", home:"🇲🇽 墨西哥", away:"🇿🇦 南非", venue:"墨西哥城" },
+    { date:"06/11", home:"🇰🇷 南韓", away:"🇨🇿 捷克", venue:"薩波潘" },
+    { date:"06/18", home:"🇨🇿 捷克", away:"🇿🇦 南非", venue:"亞特蘭大" },
+    { date:"06/18", home:"🇲🇽 墨西哥", away:"🇰🇷 南韓", venue:"達拉斯" },
+    { date:"06/25", home:"🇲🇽 墨西哥", away:"🇨🇿 捷克", venue:"待定" },
+    { date:"06/25", home:"🇿🇦 南非", away:"🇰🇷 南韓", venue:"待定" },
+  ]},
+  { group:"B", matches:[
+    { date:"06/12", home:"🇨🇦 加拿大", away:"🇧🇦 波赫", venue:"多倫多" },
+    { date:"06/12", home:"🇶🇦 卡達", away:"🇨🇭 瑞士", venue:"洛杉磯" },
+    { date:"06/19", home:"🇧🇦 波赫", away:"🇶🇦 卡達", venue:"待定" },
+    { date:"06/19", home:"🇨🇭 瑞士", away:"🇨🇦 加拿大", venue:"溫哥華" },
+    { date:"06/26", home:"🇨🇦 加拿大", away:"🇶🇦 卡達", venue:"待定" },
+    { date:"06/26", home:"🇨🇭 瑞士", away:"🇧🇦 波赫", venue:"待定" },
+  ]},
+  { group:"C", matches:[
+    { date:"06/13", home:"🇧🇷 巴西", away:"🇲🇦 摩洛哥", venue:"待定" },
+    { date:"06/13", home:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 蘇格蘭", away:"🇭🇹 海地", venue:"待定" },
+    { date:"06/20", home:"🇲🇦 摩洛哥", away:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 蘇格蘭", venue:"待定" },
+    { date:"06/20", home:"🇧🇷 巴西", away:"🇭🇹 海地", venue:"待定" },
+    { date:"06/24", home:"🏴󠁧󠁢󠁳󠁣󠁴󠁿 蘇格蘭", away:"🇧🇷 巴西", venue:"待定" },
+    { date:"06/24", home:"🇭🇹 海地", away:"🇲🇦 摩洛哥", venue:"待定" },
+  ]},
+  { group:"D", matches:[
+    { date:"06/12", home:"🇺🇸 美國", away:"🇵🇾 巴拉圭", venue:"洛杉磯" },
+    { date:"06/13", home:"🇦🇺 澳洲", away:"🇹🇷 土耳其", venue:"待定" },
+    { date:"06/19", home:"🇺🇸 美國", away:"🇦🇺 澳洲", venue:"西雅圖" },
+    { date:"06/20", home:"🇵🇾 巴拉圭", away:"🇹🇷 土耳其", venue:"待定" },
+    { date:"06/25", home:"🇺🇸 美國", away:"🇹🇷 土耳其", venue:"待定" },
+    { date:"06/25", home:"🇦🇺 澳洲", away:"🇵🇾 巴拉圭", venue:"待定" },
+  ]},
+  { group:"E", matches:[
+    { date:"06/14", home:"🇩🇪 德國", away:"🇨🇼 庫拉索", venue:"待定" },
+    { date:"06/14", home:"🇨🇷 哥斯大黎加", away:"🇪🇨 厄瓜多", venue:"待定" },
+    { date:"06/21", home:"🇩🇪 德國", away:"🇨🇷 哥斯大黎加", venue:"待定" },
+    { date:"06/21", home:"🇪🇨 厄瓜多", away:"🇨🇼 庫拉索", venue:"待定" },
+    { date:"06/25", home:"🇩🇪 德國", away:"🇪🇨 厄瓜多", venue:"待定" },
+    { date:"06/25", home:"🇨🇼 庫拉索", away:"🇨🇷 哥斯大黎加", venue:"待定" },
+  ]},
+  { group:"F", matches:[
+    { date:"06/14", home:"🇳🇱 荷蘭", away:"🇯🇵 日本", venue:"待定" },
+    { date:"06/15", home:"🇹🇳 突尼西亞", away:"🇸🇪 瑞典", venue:"待定" },
+    { date:"06/21", home:"🇯🇵 日本", away:"🇹🇳 突尼西亞", venue:"待定" },
+    { date:"06/22", home:"🇳🇱 荷蘭", away:"🇸🇪 瑞典", venue:"待定" },
+    { date:"06/26", home:"🇳🇱 荷蘭", away:"🇹🇳 突尼西亞", venue:"待定" },
+    { date:"06/26", home:"🇸🇪 瑞典", away:"🇯🇵 日本", venue:"待定" },
+  ]},
+  { group:"G", matches:[
+    { date:"06/15", home:"🇧🇪 比利時", away:"🇪🇬 埃及", venue:"待定" },
+    { date:"06/15", home:"🇮🇷 伊朗", away:"🇳🇿 紐西蘭", venue:"待定" },
+    { date:"06/22", home:"🇪🇬 埃及", away:"🇮🇷 伊朗", venue:"待定" },
+    { date:"06/22", home:"🇧🇪 比利時", away:"🇳🇿 紐西蘭", venue:"待定" },
+    { date:"06/26", home:"🇧🇪 比利時", away:"🇮🇷 伊朗", venue:"待定" },
+    { date:"06/26", home:"🇳🇿 紐西蘭", away:"🇪🇬 埃及", venue:"待定" },
+  ]},
+  { group:"H", matches:[
+    { date:"06/15", home:"🇪🇸 西班牙", away:"🇨🇻 維德角", venue:"待定" },
+    { date:"06/16", home:"🇸🇦 沙烏地阿拉伯", away:"🇺🇾 烏拉圭", venue:"待定" },
+    { date:"06/22", home:"🇨🇻 維德角", away:"🇸🇦 沙烏地阿拉伯", venue:"待定" },
+    { date:"06/22", home:"🇪🇸 西班牙", away:"🇺🇾 烏拉圭", venue:"待定" },
+    { date:"06/26", home:"🇪🇸 西班牙", away:"🇸🇦 沙烏地阿拉伯", venue:"待定" },
+    { date:"06/26", home:"🇺🇾 烏拉圭", away:"🇨🇻 維德角", venue:"待定" },
+  ]},
+  { group:"I", matches:[
+    { date:"06/16", home:"🇫🇷 法國", away:"🇸🇳 塞內加爾", venue:"待定" },
+    { date:"06/16", home:"🇳🇴 挪威", away:"🇮🇶 伊拉克", venue:"待定" },
+    { date:"06/22", home:"🇫🇷 法國", away:"🇮🇶 伊拉克", venue:"費城" },
+    { date:"06/23", home:"🇸🇳 塞內加爾", away:"🇳🇴 挪威", venue:"待定" },
+    { date:"06/27", home:"🇫🇷 法國", away:"🇳🇴 挪威", venue:"待定" },
+    { date:"06/27", home:"🇮🇶 伊拉克", away:"🇸🇳 塞內加爾", venue:"待定" },
+  ]},
+  { group:"J", matches:[
+    { date:"06/16", home:"🇦🇷 阿根廷", away:"🇩🇿 阿爾及利亞", venue:"待定" },
+    { date:"06/16", home:"🇦🇹 奧地利", away:"🇯🇴 約旦", venue:"待定" },
+    { date:"06/22", home:"🇦🇷 阿根廷", away:"🇦🇹 奧地利", venue:"阿靈頓" },
+    { date:"06/23", home:"🇩🇿 阿爾及利亞", away:"🇯🇴 約旦", venue:"待定" },
+    { date:"06/27", home:"🇦🇷 阿根廷", away:"🇯🇴 約旦", venue:"阿靈頓" },
+    { date:"06/27", home:"🇦🇹 奧地利", away:"🇩🇿 阿爾及利亞", venue:"堪薩斯城" },
+  ]},
+  { group:"K", matches:[
+    { date:"06/17", home:"🇵🇹 葡萄牙", away:"🇺🇿 烏茲別克", venue:"待定" },
+    { date:"06/17", home:"🇨🇴 哥倫比亞", away:"🇨🇩 剛果", venue:"待定" },
+    { date:"06/23", home:"🇵🇹 葡萄牙", away:"🇨🇴 哥倫比亞", venue:"待定" },
+    { date:"06/23", home:"🇺🇿 烏茲別克", away:"🇨🇩 剛果", venue:"亞特蘭大" },
+    { date:"06/27", home:"🇵🇹 葡萄牙", away:"🇨🇩 剛果", venue:"待定" },
+    { date:"06/27", home:"🇨🇴 哥倫比亞", away:"🇺🇿 烏茲別克", venue:"邁阿密" },
+  ]},
+  { group:"L", matches:[
+    { date:"06/17", home:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 英格蘭", away:"🇬🇭 迦納", venue:"待定" },
+    { date:"06/18", home:"🇭🇷 克羅埃西亞", away:"🇵🇦 巴拿馬", venue:"待定" },
+    { date:"06/23", home:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 英格蘭", away:"🇭🇷 克羅埃西亞", venue:"待定" },
+    { date:"06/23", home:"🇬🇭 迦納", away:"🇵🇦 巴拿馬", venue:"待定" },
+    { date:"06/27", home:"🏴󠁧󠁢󠁥󠁮󠁧󠁿 英格蘭", away:"🇵🇦 巴拿馬", venue:"東盧瑟福" },
+    { date:"06/27", home:"🇭🇷 克羅埃西亞", away:"🇬🇭 迦納", venue:"費城" },
+  ]},
+];
+
+const knockout = [
+  { round:"32強（Round of 32）", isFinal:false, matches:[
+    { date:"06/28–07/05", teams:"各組小組賽勝隊（共16場）", venue:"多地" },
+  ]},
+  { round:"16強（Round of 16）", isFinal:false, matches:[
+    { date:"07/07–07/10", teams:"32強勝隊（共8場）", venue:"多地" },
+  ]},
+  { round:"8強（Quarter-finals）", isFinal:false, matches:[
+    { date:"07/13–07/14", teams:"16強勝隊（共4場）", venue:"多地" },
+  ]},
+  { round:"4強（Semi-finals）", isFinal:false, matches:[
+    { date:"07/16", teams:"8強勝隊 A", venue:"達拉斯" },
+    { date:"07/17", teams:"8強勝隊 B", venue:"紐約/紐澤西" },
+  ]},
+  { round:"季軍賽（3rd Place）", isFinal:false, matches:[
+    { date:"07/19", teams:"準決賽兩支敗隊", venue:"邁阿密" },
+  ]},
+  { round:"🏆 決賽（Final）", isFinal:true, matches:[
+    { date:"07/19", teams:"準決賽兩支勝隊", venue:"紐約大都會體育場（MetLife）" },
+  ]},
+];
+
+// ──────────────────────────────────────────
+// RENDER FUNCTIONS
+// ──────────────────────────────────────────
+function scoreClass(s){
+  if(s>=85) return "score-s5";
+  if(s>=70) return "score-s4";
+  if(s>=55) return "score-s3";
+  if(s>=40) return "score-s2";
+  return "score-s1";
+}
+function scoreBarColor(s){
+  if(s>=85) return "#22c55e";
+  if(s>=70) return "#86efac";
+  if(s>=55) return "#fbbf24";
+  if(s>=40) return "#fb923c";
+  return "#f87171";
+}
+
+function renderGroups(){
+  const container = document.getElementById("groups-grid");
+  container.innerHTML = groups.map(g => `
+    <div class="group-card">
+      <div class="group-header">
+        <span class="group-label">組 ${g.label}</span>
+      </div>
+      ${g.teams.map(t => `
+        <div class="team-row">
+          <div class="team-flag">${t.flag}</div>
+          <div class="team-info">
+            <div class="team-name">${t.name}</div>
+            <div class="team-note">${t.note}</div>
+          </div>
+          <div class="score-badge ${scoreClass(t.score)}">${t.score}</div>
+        </div>
+      `).join("")}
+    </div>
+  `).join("");
+}
+
+function renderRankings(){
+  const table = document.getElementById("rankings-table");
+  table.innerHTML = `
+    <thead><tr>
+      <th>排名</th><th>球隊</th><th>組別</th>
+      <th>實力評分</th><th>賠率(參考)</th><th>分析重點</th>
+    </tr></thead>
+    <tbody>
+    ${rankings.map(r => `
+      <tr>
+        <td><span class="rank-num ${r.rank<=3?'rank-'+r.rank:''}">#${r.rank}</span></td>
+        <td style="font-weight:600;font-size:14px">${r.flag} ${r.name}</td>
+        <td style="text-align:center">組${r.group}</td>
+        <td>
+          <div class="score-bar-wrap">
+            <div class="score-bar-bg">
+              <div class="score-bar-fill" style="width:${r.score}%;background:${scoreBarColor(r.score)}"></div>
+            </div>
+            <span style="font-weight:700;color:${scoreBarColor(r.score)};min-width:28px">${r.score}</span>
+          </div>
+        </td>
+        <td><span class="odds-chip">${r.odds}</span></td>
+        <td style="font-size:12px;color:rgba(255,255,255,0.7)">${r.analysis}</td>
+      </tr>
+    `).join("")}
+    </tbody>
+  `;
+}
+
+function renderFixtures(){
+  const container = document.getElementById("fixtures-container");
+  container.innerHTML = fixtures.map(g => `
+    <div class="fixture-group">
+      <div class="fixture-group-title">組 ${g.group}</div>
+      <div class="fixture-list">
+        ${g.matches.map((m,i) => `
+          <div class="fixture">
+            <div class="fixture-date">06月<br>${m.date.split("/")[1]}日</div>
+            <div class="fixture-team fixture-home">${m.home}</div>
+            <div class="fixture-vs">VS</div>
+            <div class="fixture-team fixture-away">${m.away}</div>
+            <div class="fixture-venue">📍 ${m.venue}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderKnockout(){
+  const container = document.getElementById("knockout-container");
+  container.innerHTML = knockout.map(r => `
+    <div class="knockout-round">
+      <div class="knockout-round-title ${r.isFinal?'final-title':''}">${r.round}</div>
+      <div class="knockout-grid">
+        ${r.matches.map(m => `
+          <div class="knockout-match ${r.isFinal?'final-match':''}">
+            <div class="knockout-date">📅 ${m.date}</div>
+            <div class="knockout-teams">${m.teams}</div>
+            <div class="knockout-venue">📍 ${m.venue}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `).join(`<div class="disclaimer">
+    <strong>⚠️ 免責聲明：</strong>本頁面所有實力評分、賠率資訊僅供參考，不構成運動彩券投注建議。賠率隨時間變動，請向合法運動彩券平台確認最新資訊。購買運動彩券有風險，請理性投注，量力而為，未滿18歲請勿購買。
+  </div>`);
+}
+
+// ──────────────────────────────────────────
+// TAB SWITCHING
+// ──────────────────────────────────────────
+function showTab(name){
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("tab-"+name).classList.add("active");
+}
+
+// INIT
+renderGroups();
+renderRankings();
+renderFixtures();
+renderKnockout();
+</script>
+
+<!-- FOOTER DISCLAIMER -->
+<div style="background:#060a1a;border-top:2px solid rgba(255,215,0,0.3);padding:20px 24px;margin-top:0;">
+  <div class="disclaimer" style="max-width:900px;margin:0 auto;text-align:center;">
+    <strong>⚠️ 免責聲明：</strong>本頁面所有賽程資訊、實力評分及賠率數據均僅供參考，不構成任何運動彩券投注建議。賠率隨時變動，以各合法運動彩券平台公告為準。購買運動彩券有風險，請理性投注，量力而為。<strong>未滿18歲請勿購買運動彩券。</strong>
+  </div>
+  <p style="text-align:center;margin-top:14px;font-size:13px;color:rgba(255,215,0,0.8);">
+    ✍️ 作者：<a href="https://www.facebook.com/ferysimple" target="_blank" style="color:var(--gold);text-decoration:underline;">Facebook｜霏常簡單</a>
+  </p>
+  <p style="text-align:center;margin-top:8px;font-size:12px;color:rgba(255,255,255,0.4);">
+    🤖 本網頁由 AI Claude 輔助製作，資訊可能有誤，請小心查證。
+  </p>
+</div>
+
+</body>
+</html>
